@@ -1,6 +1,3 @@
 {
-  "framework": "nextjs",
-  "installCommand": "npm install --prefix Site_IBNS/Quiz/quiz_biblico/nextjs_space",
-  "buildCommand": "npm run vercel-build --prefix Site_IBNS/Quiz/quiz_biblico/nextjs_space",
-  "outputDirectory": "Site_IBNS/Quiz/quiz_biblico/nextjs_space/.next"
+  "framework": "nextjs"
 }
