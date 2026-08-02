@@ -26,11 +26,11 @@ interface PresenterViewProps {
 export function PresenterView({ session, sessionId, play }: PresenterViewProps) {
   const [newGroupName, setNewGroupName] = useState('');
   const [showShuffle, setShowShuffle] = useState(false);
+  const [shuffleOrder, setShuffleOrder] = useState<string[] | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [editingGroup, setEditingGroup] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
-  const [eliminatedLetter, setEliminatedLetter] = useState<{ groupId: string; letter: string } | null>(null);
 
   const groups = session?.groups ?? {};
   const groupOrder = session?.groupOrder ?? Object.keys(groups);
@@ -66,8 +66,12 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
   const handleShuffle = async () => {
     play('shuffle');
     setShowShuffle(true);
-    await shuffleGroups(sessionId);
-    setTimeout(() => setShowShuffle(false), 2000);
+    const ids = await shuffleGroups(sessionId);
+    setShuffleOrder(ids ?? null);
+    setTimeout(() => {
+      setShowShuffle(false);
+      setShuffleOrder(null);
+    }, 2000);
   };
 
   const handleMark = async (groupId: string, round: number, correct: boolean) => {
@@ -88,8 +92,6 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
       const letters = ['A', 'B', 'C', 'D'];
       const eliminated = letters[Math.floor(Math.random() * letters?.length)] ?? 'A';
       extra = { eliminated };
-      setEliminatedLetter({ groupId, letter: eliminated });
-      setTimeout(() => setEliminatedLetter(null), 3000);
     }
 
     await useHelp(sessionId, groupId, helpType, currentRound, extra);
@@ -97,9 +99,6 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
 
   const handleUndoHelp = async (groupId: string, helpType: string) => {
     play('help');
-    if (helpType === 'eliminateAnswer' && eliminatedLetter?.groupId === groupId) {
-      setEliminatedLetter(null);
-    }
     await undoHelp(sessionId, groupId, helpType);
   };
 
@@ -340,9 +339,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
                         {canUndo && <RotateCcw className="w-3 h-3" />}
                         {HELP_LABELS[key] ?? key}
                         {isUsed && (
-                          <span>
-                            {key === 'eliminateAnswer' && used?.[0]?.eliminated ? `(-${used[0].eliminated})` : '✓'}
-                          </span>
+                          <span>✓</span>
                         )}
                       </button>
                     );
@@ -350,19 +347,6 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
                 </div>
               </div>
 
-              {/* Eliminated letter overlay */}
-              <AnimatePresence>
-                {eliminatedLetter?.groupId === gid && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.5 }}
-                    className="mx-3 mb-2 bg-[var(--quiz-red)]/30 border border-[var(--quiz-red)] rounded-lg p-2 text-center"
-                  >
-                    <span className="text-[var(--quiz-red)] font-bold text-lg">Alternativa {eliminatedLetter?.letter} eliminada!</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
 
               {/* Rounds */}
               <div className="px-3 pb-3">
@@ -444,7 +428,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
 
       {/* Shuffle animation */}
       <AnimatePresence>
-        {showShuffle && <ShuffleAnimation groups={groups} />}
+        {showShuffle && <ShuffleAnimation groups={groups} order={shuffleOrder ?? undefined} />}
       </AnimatePresence>
 
       {/* Clear confirm */}

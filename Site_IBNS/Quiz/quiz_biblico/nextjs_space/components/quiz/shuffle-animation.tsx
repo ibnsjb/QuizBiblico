@@ -6,10 +6,12 @@ import { Shuffle } from 'lucide-react';
 
 interface ShuffleAnimationProps {
   groups: Record<string, GroupData>;
+  order?: string[];
 }
 
-export function ShuffleAnimation({ groups }: ShuffleAnimationProps) {
-  const names = Object.values(groups ?? {})?.map((g: GroupData) => g?.name ?? '---');
+export function ShuffleAnimation({ groups, order }: ShuffleAnimationProps) {
+  const orderedIds = order ?? Object.keys(groups ?? {});
+  const names = orderedIds?.map((id: string) => groups?.[id]?.name ?? '---');
 
   return (
     <motion.div
