@@ -1,0 +1,146 @@
+[
+  {
+    "data": "2026-06-22",
+    "tipo": "Celebração da Família",
+    "hora": "09:00",
+    "tema": "Exemplo de evento para upload",
+    "ordem": [
+      {
+        "etapa": "Abertura em oração",
+        "min": 3,
+        "responsavelIndex": null
+      },
+      {
+        "etapa": "Louvor de entrada",
+        "min": 15,
+        "responsavelIndex": 1
+      },
+      {
+        "etapa": "Avisos",
+        "min": 5,
+        "responsavelIndex": null
+      },
+      {
+        "etapa": "Leitura Bíblica",
+        "min": 5,
+        "responsavelIndex": 3
+      },
+      {
+        "etapa": "Mensagem",
+        "min": 40,
+        "responsavelIndex": 0
+      },
+      {
+        "etapa": "Dízimos e Ofertas",
+        "min": 7,
+        "responsavelIndex": 5
+      },
+      {
+        "etapa": "Encerramento",
+        "min": 5,
+        "responsavelIndex": null
+      }
+    ],
+    "escala": [
+      {
+        "funcao": "Pregador / Ministro",
+        "nome": "Pr. João Silva"
+      },
+      {
+        "funcao": "Louvor / Música",
+        "nome": "Maria Souza"
+      },
+      {
+        "funcao": "Leitura Bíblica",
+        "nome": "Carlos Lima"
+      },
+      {
+        "funcao": "Oração Inicial",
+        "nome": "Ana Paula"
+      },
+      {
+        "funcao": "Oração Final",
+        "nome": "José Ferreira"
+      },
+      {
+        "funcao": "Dízimos e Ofertas",
+        "nome": "Pedro Costa"
+      },
+      {
+        "funcao": "Mídias / Projeção",
+        "nome": "Lucas Mendes"
+      },
+      {
+        "funcao": "Recepção / Portaria",
+        "nome": "Fernanda Rocha"
+      }
+    ]
+  },
+  {
+    "data": "2026-06-23",
+    "tipo": "Escola Discipuladora",
+    "hora": "20:00",
+    "tema": "Segundo evento para upload",
+    "ordem": [
+      {
+        "etapa": "Oração Inicial",
+        "min": 5,
+        "responsavelIndex": 3
+      },
+      {
+        "etapa": "Louvores",
+        "min": 20,
+        "responsavelIndex": 1
+      },
+      {
+        "etapa": "Ensino",
+        "min": 50,
+        "responsavelIndex": 0
+      },
+      {
+        "etapa": "Discussão",
+        "min": 20,
+        "responsavelIndex": null
+      },
+      {
+        "etapa": "Intercessão",
+        "min": 15,
+        "responsavelIndex": 4
+      }
+    ],
+    "escala": [
+      {
+        "funcao": "Pregador / Ministro",
+        "nome": "Pr. João Silva"
+      },
+      {
+        "funcao": "Louvor / Música",
+        "nome": "Maria Souza"
+      },
+      {
+        "funcao": "Leitura Bíblica",
+        "nome": "Carlos Lima"
+      },
+      {
+        "funcao": "Oração Inicial",
+        "nome": "Ana Paula"
+      },
+      {
+        "funcao": "Oração Final",
+        "nome": "José Ferreira"
+      },
+      {
+        "funcao": "Dízimos e Ofertas",
+        "nome": "Pedro Costa"
+      },
+      {
+        "funcao": "Mídias / Projeção",
+        "nome": "Lucas Mendes"
+      },
+      {
+        "funcao": "Recepção / Portaria",
+        "nome": "Fernanda Rocha"
+      }
+    ]
+  }
+]

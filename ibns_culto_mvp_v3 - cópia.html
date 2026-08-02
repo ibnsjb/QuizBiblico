@@ -1,0 +1,1098 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, sans-serif); background: #f0f4f8; min-height: 100vh; }
+  :root { --ibns-blue: #037fba; --ibns-navy: #0c4786; --ibns-dark: #1f4c66; --ibns-light: #8dafc0; }
+  .header { background: linear-gradient(135deg, var(--ibns-navy) 0%, var(--ibns-blue) 100%); color: white; padding: 14px 16px 12px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+  .logo-circle { width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: white; letter-spacing: 1px; flex-shrink: 0; }
+  .header-text h1 { font-size: 15px; font-weight: 600; line-height: 1.2; }
+  .header-text p { font-size: 11px; opacity: 0.8; margin-top: 1px; }
+  .header-right { margin-left: auto; }
+  .btn-admin { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); color: white; border-radius: 20px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
+  .nav-tabs { background: var(--ibns-navy); display: flex; }
+  .nav-tab { flex: 1; padding: 10px 8px; text-align: center; color: rgba(255,255,255,0.6); font-size: 12px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  .nav-tab.active { color: white; border-bottom-color: var(--ibns-blue); background: rgba(255,255,255,0.08); }
+  .page { display: none; padding: 16px; }
+  .page.active { display: block; }
+  .date-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .date-card h2 { font-size: 13px; color: var(--ibns-dark); font-weight: 500; margin-bottom: 10px; }
+  .date-input { width: 100%; border: 1.5px solid #dde3ea; border-radius: 10px; padding: 10px 14px; font-size: 15px; color: var(--ibns-navy); background: #f7fafc; outline: none; }
+  .date-input:focus { border-color: var(--ibns-blue); }
+  .date-controls { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 16px; flex-wrap: wrap; }
+  .date-control-item { flex: 1; min-width: 200px; }
+  .date-control-item label { display: block; font-size: 12px; color: var(--ibns-dark); font-weight: 500; margin-bottom: 8px; }
+  .date-control-item input,
+  .date-control-item select { width: 100%; border: 1.5px solid #dde3ea; border-radius: 10px; padding: 10px 14px; font-size: 14px; color: var(--ibns-navy); background: white; outline: none; }
+  .date-control-item input:focus,
+  .date-control-item select:focus { border-color: var(--ibns-blue); }
+  .event-banner { display:flex; justify-content:space-between; align-items:flex-start; background: linear-gradient(135deg, var(--ibns-blue) 0%, var(--ibns-dark) 100%); border-radius: 14px; padding: 16px; margin-bottom: 16px; color: white; box-shadow: 0 2px 8px rgba(3,127,186,0.3); }
+  .event-banner .tipo { font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .event-banner .titulo { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .event-banner .meta { display: flex; gap: 16px; font-size: 13px; opacity: 0.9; flex-wrap: wrap; }
+  .banner-right { display:flex; flex-direction:column; align-items:flex-end; gap:10px; min-width:140px; }
+  .banner-info { text-align:right; }
+  .banner-info .label { font-size: 12px; color: rgba(255,255,255,0.75); }
+  .banner-info .value { font-size: 14px; font-weight: 700; color: white; }
+  .section-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--ibns-navy); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; padding-bottom: 8px; border-bottom: 1.5px solid #eef2f7; }
+  .time-summary { background: #f0f9ff; border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .time-summary .label { font-size: 12px; color: var(--ibns-dark); }
+  .time-summary .value { font-size: 14px; font-weight: 600; color: var(--ibns-navy); }
+  .ordem-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid #eef2f7; }
+  .ordem-item:last-child { border-bottom: none; }
+  .check-btn { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #c5d4e0; background: white; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .check-btn.checked { background: #22c55e; border-color: #22c55e; }
+  .check-btn.checked::after { content: '✓'; color: white; font-size: 13px; font-weight: 700; }
+  .ordem-num { width: 22px; height: 22px; border-radius: 50%; background: #eef2f7; color: var(--ibns-dark); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ordem-info { flex: 1; }
+  .ordem-responsavel { margin-left: 12px; text-align: right; font-size: 13px; color: #64748b; flex-shrink: 0; min-width:140px; }
+  .ordem-nome { font-size: 14px; color: #1e293b; }
+  .ordem-nome.done { text-decoration: line-through; color: #94a3b8; }
+  .ordem-time { font-size: 11px; color: var(--ibns-light); margin-top: 1px; }
+  .progress-bar { height: 5px; background: #e2e8f0; border-radius: 3px; margin-bottom: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--ibns-blue), var(--ibns-dark)); border-radius: 3px; transition: width 0.3s; }
+  .escala-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid #eef2f7; }
+  .escala-item:last-child { border-bottom: none; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--ibns-blue), var(--ibns-navy)); color: white; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+  .admin-section { background: white; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .admin-section h3 { font-size: 14px; font-weight: 600; color: var(--ibns-navy); margin-bottom: 14px; }
+  label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; margin-top: 10px; }
+  label:first-of-type { margin-top: 0; }
+  input, select, textarea { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 9px; padding: 9px 12px; font-size: 14px; outline: none; font-family: inherit; color: #1e293b; background: white; }
+  input:focus, select:focus { border-color: var(--ibns-blue); }
+  .btn-primary { width: 100%; background: var(--ibns-blue); color: white; border: none; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 14px; }
+  .btn-primary:hover { background: var(--ibns-navy); }
+  .btn-danger { background: #fee2e2; color: #ef4444; border: none; border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+  .evento-list-item { border: 1px solid #eef2f7; border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .evento-list-item .ei-title { font-size: 14px; font-weight: 500; color: #1e293b; }
+  .evento-list-item .ei-meta { font-size: 12px; color: #64748b; margin-top: 2px; }
+  .sheets-config { background: #f0f9ff; border: 1.5px dashed var(--ibns-blue); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+  .sheets-config p { font-size: 12px; color: var(--ibns-dark); margin-bottom: 8px; line-height: 1.5; }
+  .badge { display: inline-block; background: var(--ibns-blue); color: white; border-radius: 20px; font-size: 10px; padding: 2px 8px; margin-left: 6px; }
+  .senha-overlay { position: absolute; inset: 0; background: rgba(12,71,134,0.97); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; z-index: 50; min-height: 400px; }
+  .senha-overlay h2 { color: white; font-size: 18px; margin-bottom: 6px; }
+  .senha-overlay p { color: rgba(255,255,255,0.7); font-size: 13px; margin-bottom: 20px; text-align: center; }
+  .senha-overlay input { max-width: 260px; text-align: center; font-size: 18px; letter-spacing: 4px; background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); color: white; border-radius: 12px; padding: 12px; }
+  .senha-overlay input::placeholder { color: rgba(255,255,255,0.4); letter-spacing: 1px; font-size: 14px; }
+  .btn-entrar { background: var(--ibns-blue); color: white; border: none; border-radius: 10px; padding: 12px 40px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; }
+  .btn-esqueci { background: none; border: none; color: rgba(255,255,255,0.55); font-size: 12px; cursor: pointer; margin-top: 12px; text-decoration: underline; }
+  .tab-content { position: relative; }
+  .upload-area { border: 2px dashed #c5d4e0; border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; margin-top: 10px; }
+  .upload-area:hover { border-color: var(--ibns-blue); background: #f0f9ff; }
+  .upload-area p { font-size: 13px; color: #64748b; margin-top: 8px; }
+  .sub-section-title { font-size: 12px; font-weight: 600; color: var(--ibns-dark); margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }
+  .sub-section-title span { font-weight: 400; color: #94a3b8; font-size: 11px; }
+  .btn-remove { width: 30px; height: 30px; border-radius: 50%; background: #fee2e2; color: #ef4444; border: none; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .btn-add { width: 100%; background: #f0f9ff; color: var(--ibns-blue); border: 1.5px dashed var(--ibns-blue); border-radius: 9px; padding: 9px; font-size: 13px; cursor: pointer; margin-top: 4px; }
+  .alert { border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 12px; }
+  .alert.success { background: #dcfce7; color: #166534; }
+  .alert.error { background: #fee2e2; color: #991b1b; }
+  .alert.info { background: #e0f2fe; color: #075985; }
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-bg.open { display: flex; }
+  .modal { background: white; border-radius: 16px; padding: 24px; max-width: 320px; width: 100%; }
+  .modal h3 { font-size: 16px; color: var(--ibns-navy); margin-bottom: 8px; }
+  .modal p { font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 14px; }
+  .modal-hint { background: #f0f9ff; border-radius: 10px; padding: 12px; margin-bottom: 16px; }
+  .modal-hint p { font-size: 13px; color: var(--ibns-dark); margin: 0; }
+  .modal-actions { display: flex; gap: 8px; }
+  .btn-modal-sec { flex: 1; background: #f1f5f9; color: #475569; border: none; border-radius: 9px; padding: 10px; font-size: 13px; cursor: pointer; }
+  .btn-modal-pri { flex: 1; background: var(--ibns-blue); color: white; border: none; border-radius: 9px; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .sticky-btn-container { position: sticky; top: 0; background: white; padding: 12px 16px; z-index: 40; border-bottom: 1.5px solid #e2e8f0; margin: -16px -16px 16px -16px; }
+  .sticky-btn-container .btn-primary { margin: 0; }
+  .btn-secondary { background: white; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px 18px; cursor:pointer; font-size:14px; font-weight:600; margin-top: 14px; }
+  .btn-secondary:hover { background: #f8fafc; }
+  .admin-action-header { margin-bottom: 16px; display: flex; justify-content: flex-end; }
+  .event-form { display: none; }
+  .event-form.open { display: block; }
+  .admin-action-bar { position: fixed; right: 20px; bottom: 20px; display: none; gap: 10px; align-items: center; justify-content: center; z-index: 120; }
+  .admin-action-bar.show { display: flex; }
+  .admin-action-bar button { min-width: 140px; min-height: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .date-picker-wrapper { background: white; border: 1.5px solid #dde3ea; border-radius: 16px; padding: 10px; max-width: 300px; }
+  .date-picker-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .date-picker-header button { width: 28px; height: 28px; border: none; border-radius: 10px; background: #f1f5f9; color: var(--ibns-dark); cursor: pointer; font-size: 16px; }
+  .date-picker-header button:hover { background: #e2eff7; }
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(28px, 1fr)); gap: 4px; }
+  .weekday { text-align: center; font-size: 11px; color: #94a3b8; }
+  .calendar-day { border: none; border-radius: 8px; background: #f8fafc; padding: 7px 0; cursor: pointer; color: #1e293b; font-size: 12px; transition: transform 0.15s, background 0.2s; }
+  .calendar-day:hover { transform: translateY(-1px); background: #eaf4ff; }
+  .calendar-day.empty { background: transparent; cursor: default; }
+  .calendar-day.has-event { background: #fff4e5; color: #9a3412; position: relative; }
+  .calendar-day.has-event::after { content: ''; position: absolute; inset: 4px; border-radius: 8px; border: 2px solid #fb923c; }
+  .calendar-day.selected { background: #0c4786; color: white; }
+  .calendar-day.today { box-shadow: inset 0 0 0 1px #0c4786; }
+  .selected-date-display { margin-top: 8px; font-size: 12px; color: var(--ibns-dark); min-height: 20px; }
+  .calendar-toggle { display: inline-flex; align-items: center; gap:8px; padding:8px 10px; border-radius:10px; border:1px solid #dde3ea; background:white; cursor:pointer; font-weight:600; }
+  .btn-reorder { background:#fff7ed; border:1px solid #fde3c5; color:#92400e; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:600; }
+  .btn-save-order { background:#0ea5e9; color:white; padding:8px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:600; }
+  .culto-ordem-list { margin-top:8px; }
+  .culto-ordem-item { display:flex; align-items:center; gap:10px; padding:8px; background:white; border:1px solid #eef2f7; border-radius:8px; margin-bottom:6px; }
+  .culto-drag-handle { cursor:grab; color:#94a3b8; padding:6px; border-radius:6px; background:#f8fafc; }
+
+  /* Toast */
+  .toast { position: fixed; right: 20px; bottom: 90px; z-index:130; min-width:220px; max-width:320px; padding:12px 14px; border-radius:10px; color:white; display:none; box-shadow:0 6px 20px rgba(0,0,0,0.12); }
+  .toast.show { display:block; }
+  .toast.success { background: linear-gradient(90deg,#16a34a,#059669); }
+  .toast.error { background: linear-gradient(90deg,#dc2626,#ef4444); }
+  .toast.info { background: linear-gradient(90deg,#0369a1,#0ea5e9); }
+  .filter-container { background: white; border-radius: 14px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .filter-item { flex: 1; min-width: 140px; }
+  .filter-item label { display: block; font-size: 11px; font-weight: 600; color: var(--ibns-dark); margin-bottom: 6px; text-transform: uppercase; }
+  .filter-item input, .filter-item select { width: 100%; border: 1.5px solid #dde3ea; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: var(--ibns-navy); background: white; outline: none; }
+  .filter-item input:focus, .filter-item select:focus { border-color: var(--ibns-blue); }
+  .escala-admin-item { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+  .escala-admin-item input { flex: 1; min-width: 0; }
+
+  /* ── DRAG & DROP ── */
+  .drag-list { list-style: none; padding: 0; }
+  .drag-item {
+    display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px;
+    margin-bottom: 8px; background: white;
+    border: 1.5px solid #e2e8f0; border-radius: 10px;
+    padding: 8px; transition: box-shadow 0.15s, opacity 0.15s;
+    cursor: default;
+  }
+  .drag-item-row { display: flex; align-items: center; gap: 6px; width: 100%; }
+  .drag-item-row.second-row { flex: 1 1 100%; }
+  .drag-item.dragging { opacity: 0.4; box-shadow: 0 4px 14px rgba(3,127,186,0.25); }
+  .drag-item.drag-over { border-color: var(--ibns-blue); background: #f0f9ff; }
+  .drag-handle {
+    cursor: grab; color: #94a3b8; font-size: 18px;
+    padding: 2px 4px; user-select: none; flex-shrink: 0;
+    touch-action: none;
+  }
+  .drag-handle:active { cursor: grabbing; }
+  .drag-handle-icon { display: flex; flex-direction: column; gap: 3px; }
+  .drag-handle-icon span { display: block; width: 14px; height: 2px; background: #94a3b8; border-radius: 2px; }
+  .drag-item input { border: none; background: transparent; padding: 4px 2px; font-size: 14px; outline: none; color: #1e293b; }
+  .drag-item input:focus { background: #f8fafc; border-radius: 6px; }
+  .drag-item input.min-input { width: 50px; flex: none; text-align: center; border: 1.5px solid #e2e8f0; border-radius: 7px; background: white; padding: 4px 6px; }
+  .drag-item input.min-input:focus { border-color: var(--ibns-blue); }
+  .drag-item .drag-sep { font-size: 11px; color: #cbd5e1; flex-shrink: 0; }
+  .drag-item select { flex: 0 1 160px; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 5px 6px; font-size: 12px; }
+  .drag-item select:focus { border-color: var(--ibns-blue); }
+  .drag-hint { font-size: 11px; color: #94a3b8; text-align: center; padding: 4px 0 8px; }
+
+  /* Touch drag feedback */
+  .touch-clone {
+    position: fixed; pointer-events: none; z-index: 9999;
+    opacity: 0.85; box-shadow: 0 8px 24px rgba(3,127,186,0.3);
+    border-radius: 10px; background: white;
+    border: 2px solid var(--ibns-blue);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-circle">IBNS</div>
+  <div class="header-text">
+    <h1>Igreja Batista Nova Sião</h1>
+    <p>Ordem do Culto & Escalas</p>
+  </div>
+  <div class="header-right">
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="showPage('culto')">Culto</div>
+  <div class="nav-tab" onclick="showPage('escala')">Escala</div>
+  <div class="nav-tab" onclick="showPage('admin')">Painel</div>
+</div>
+
+<div class="modal-bg" id="modal-senha">
+  <div class="modal">
+    <h3>🔑 Recuperar acesso</h3>
+    <p>Veja a dica abaixo. Se ainda não lembrar, envie um e-mail para o administrador.</p>
+    <div class="modal-hint"><p><strong>Dica:</strong> Senha padrão do PC.</p></div>
+    <div class="modal-actions">
+      <button class="btn-modal-sec" onclick="closeModal()">Já lembrei</button>
+    </div>
+  </div>
+</div>
+
+<div class="tab-content">
+
+<div id="page-culto" class="page active">
+  <div class="date-controls">
+    <div class="date-control-item">
+      <label>Selecionar data</label>
+      <div>
+        <button id="calendar-toggle" class="calendar-toggle" onclick="toggleCalendar()">📅 <span id="calendar-toggle-label">Selecionar data</span></button>
+        <div class="date-picker-wrapper" id="calendar-panel" style="display:none; margin-top:8px;">
+          <div class="date-picker-header">
+            <button type="button" onclick="changeMonth(-1)" aria-label="Mês anterior">‹</button>
+            <div id="calendar-month-year"></div>
+            <button type="button" onclick="changeMonth(1)" aria-label="Próximo mês">›</button>
+          </div>
+          <div class="calendar-grid" id="calendar-grid"></div>
+          <div id="selected-date-display" class="selected-date-display"></div>
+          <input type="date" id="date-picker-hidden" onchange="selectDate(this.value)" style="display:none;">
+        </div>
+      </div>
+    </div>
+    <div class="date-control-item" id="event-selector-container" style="display:none;"></div>
+  </div>
+  <div id="event-display"></div>
+</div>
+
+<div id="page-escala" class="page">
+  <div id="escala-display"></div>
+</div>
+
+<div id="page-admin" class="page" style="position:relative; min-height:400px;">
+  <div id="senha-overlay" class="senha-overlay">
+    <div class="logo-circle" style="width:56px;height:56px;font-size:16px;margin-bottom:16px;">IBNS</div>
+    <h2>Painel Admin</h2>
+    <p>Digite a senha para acessar</p>
+    <input type="password" id="senha-input" placeholder="Senha" onkeydown="if(event.key==='Enter')checkSenha()" style="max-width:260px">
+    <button class="btn-entrar" onclick="checkSenha()">Entrar</button>
+    <p id="senha-err" style="color:#fca5a5;font-size:12px;margin-top:10px;display:none">Senha incorreta.</p>
+    <button class="btn-esqueci" onclick="openModal()">Esqueci a senha</button>
+  </div>
+
+  <div id="admin-content" style="display:none">
+    <div class="sheets-config">
+      <p><strong>Google Sheets (CSV público)</strong><br>Cole a URL do Sheets publicado como CSV.</p>
+      <input type="url" id="sheets-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv" style="margin-bottom:8px">
+      <button class="btn-primary" onclick="saveSheets()" style="margin-top:8px">Salvar & Carregar</button>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-action-header">
+        <button id="btn-open-form" class="btn-primary" onclick="showEventForm()">+ Adicionar Evento</button>
+      </div>
+      <div id="event-form" class="event-form">
+        <h3>Cadastrar Evento</h3>
+        <div id="form-alert"></div>
+        <label>Data</label>
+        <input type="date" id="f-data">
+        <label>Tipo</label>
+        <select id="f-tipo">
+          <option>Celebração da Família</option>
+          <option>Escola Discipuladora</option>
+          <option>Mini Vigília</option>
+          <option>Outro</option>
+        </select>
+        <label>Horário</label>
+        <input type="time" id="f-hora" value="09:00">
+        <label>Tema / Descrição</label>
+        <input type="text" id="f-tema" placeholder="Ex: A fé que move montanhas">
+
+        <div class="sub-section-title">
+        📋 Ordem do Culto
+        <span>arraste para reordenar · etapa | min</span>
+      </div>
+      <div class="drag-hint">☰ segure e arraste para reordenar</div>
+      <ul class="drag-list" id="ordem-list"></ul>
+      <button class="btn-add" onclick="addOrdemItem()">+ Adicionar etapa</button>
+
+      <div class="sub-section-title" style="margin-top:18px">
+        👥 Escala <span>função | nome</span>
+      </div>
+      <div id="escala-list"></div>
+      <button class="btn-add" onclick="addEscalaItem()">+ Adicionar servo</button>
+
+      <div class="admin-action-bar" id="event-actions" style="display:none;">
+        <button class="btn-secondary" onclick="cancelarEdicao()">Cancelar</button>
+        <button class="btn-primary" onclick="salvarEvento()">Salvar Evento</button>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h3>Importar via JSON</h3>
+      <div class="upload-area" onclick="document.getElementById('json-file').click()">
+        <div style="font-size:28px">📂</div>
+        <p>Clique para selecionar um arquivo JSON</p>
+      </div>
+      <input type="file" id="json-file" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+
+    <div class="admin-section">
+      <h3>Eventos Cadastrados <span class="badge" id="eventos-count">0</span></h3>
+      
+      <div class="filter-container">
+        <div class="filter-item" style="flex: 0 1 140px;">
+          <label>Mês/Ano</label>
+          <input type="month" id="filter-mes" onchange="renderEventosList()">
+        </div>
+        <div class="filter-item" style="flex: 1; min-width: 140px;">
+          <label>Buscar</label>
+          <input type="text" id="filter-busca" placeholder="Tipo, tema..." oninput="renderEventosList()">
+        </div>
+      </div>
+
+      <div id="eventos-lista"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const SENHA = '0573';
+let eventos = JSON.parse(localStorage.getItem('ibns_eventos') || '[]');
+let checklist = JSON.parse(localStorage.getItem('ibns_checklist') || '{}');
+let ordemItems = [];
+let escalaItems = [];
+let dataSelecionada = '';
+let selectedEventoIndex = null; // index in eventos when multiple events on same date
+  let currentCultoEventIndex = null;
+  let cultoReorderMode = false;
+  let cultoTempOrder = [];
+  let cultoDragSrcIdx = null;
+let calendarYear = null;
+let calendarMonth = null;
+
+/* ── DRAG & DROP state ── */
+let dragSrcIdx = null;
+let touchClone = null;
+let touchSrcIdx = null;
+
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach((x,i) => x.classList.toggle('active', ['culto','escala','admin'][i]===p));
+  document.getElementById('page-'+p).classList.add('active');
+  if(p==='escala') renderEscala();
+  if(p==='admin') renderEventosList();
+}
+
+function checkSenha() {
+  if(document.getElementById('senha-input').value === SENHA) {
+    document.getElementById('senha-overlay').style.display='none';
+    document.getElementById('admin-content').style.display='block';
+    initAdminForm();
+  } else {
+    document.getElementById('senha-err').style.display='block';
+    document.getElementById('senha-input').value='';
+  }
+}
+function openModal() { document.getElementById('modal-senha').classList.add('open'); }
+function closeModal() { document.getElementById('modal-senha').classList.remove('open'); }
+function enviarEmail() {
+  const s=encodeURIComponent('Recuperação de acesso - Painel IBNS');
+  const b=encodeURIComponent('Olá,\n\nEsqueci a senha do painel admin do site da IBNS.\nPoderia me ajudar?\n\nObrigado.');
+  window.open('mailto:ibnsjb@gmail.com?subject='+s+'&body='+b);
+  closeModal();
+}
+/*
+function initAdminForm() {
+  ordemItems = [
+    {etapa:'Abertura em oração', min:3},
+    {etapa:'Louvor de entrada', min:15},
+    {etapa:'Avisos', min:5},
+    {etapa:'Leitura Bíblica', min:5},
+    {etapa:'Mensagem', min:40},
+    {etapa:'Dízimos e Ofertas', min:7},
+    {etapa:'Encerramento', min:5}
+  ];
+*/
+function initAdminForm() {
+  ordemItems = [
+    {etapa:'Abertura em oração', min:3, responsavelIndex:null},
+    {etapa:'Louvor de entrada', min:15, responsavelIndex:null},
+    {etapa:'Avisos', min:5, responsavelIndex:null},
+    {etapa:'Leitura Bíblica', min:5, responsavelIndex:null},
+    {etapa:'Mensagem', min:40, responsavelIndex:null},
+    {etapa:'Dízimos e Ofertas', min:7, responsavelIndex:null},
+    {etapa:'Encerramento', min:5, responsavelIndex:null}
+  ];
+  escalaItems = ['Pregador / Ministro','Louvor / Música','Leitura Bíblica','Oração Inicial','Oração Final','Dízimos e Ofertas','Mídias / Projeção','Recepção / Portaria'].map(f=>({funcao:f,nome:''}));
+  renderOrdemAdmin();
+  renderEscalaAdmin();
+  renderEventosList();
+  showEventForm(false);
+  // ajustar placeholder do tema quando o tipo for 'Outro'
+  const ft = document.getElementById('f-tipo');
+  if(ft){
+    ft.onchange = ()=>{
+      const tema = document.getElementById('f-tema');
+      if(ft.value==='Outro') tema.placeholder='Nome do Evento/Culto (obrigatório)';
+      else tema.placeholder='Ex: A fé que move montanhas';
+    };
+  }
+}
+
+function showEventForm(open=true) {
+  const form = document.getElementById('event-form');
+  const actions = document.getElementById('event-actions');
+  const addButton = document.getElementById('btn-open-form');
+  if(!form || !actions || !addButton) return;
+  if(open) {
+    form.classList.add('open');
+    actions.classList.add('show');
+    actions.style.display = 'flex';
+    addButton.style.display = 'none';
+  } else {
+    form.classList.remove('open');
+    actions.classList.remove('show');
+    actions.style.display = 'none';
+    addButton.style.display = 'inline-flex';
+  }
+}
+
+// Calendar toggle state
+let calendarOpen = false;
+function toggleCalendar() {
+  calendarOpen = !calendarOpen;
+  const panel = document.getElementById('calendar-panel');
+  const toggleLabel = document.getElementById('calendar-toggle-label');
+  if(!panel || !toggleLabel) return;
+  panel.style.display = calendarOpen ? 'block' : 'none';
+  toggleLabel.textContent = calendarOpen ? 'Fechar calendário' : (dataSelecionada ? formatDate(dataSelecionada) : 'Selecionar data');
+}
+
+function showToast(msg, type='info', timeout=3000) {
+  const t = document.getElementById('toast');
+  if(!t) return;
+  t.textContent = msg;
+  t.className = 'toast show ' + (type||'info');
+  setTimeout(()=>{ t.className = 'toast'; }, timeout);
+}
+
+/* ── RENDER DRAG LIST ── */
+function renderOrdemAdmin() {
+  const ul = document.getElementById('ordem-list');
+  ul.innerHTML = '';
+  ordemItems.forEach((o, i) => {
+    const li = document.createElement('li');
+    li.className = 'drag-item';
+    li.dataset.idx = i;
+    li.draggable = true;
+    // build options for responsavel (escala) selection
+    const escalaOptions = escalaItems.map((s,si)=>`<option value="${si}" ${o.responsavelIndex==si? 'selected':''}>${esc(s.nome||s.funcao)}</option>`).join('');
+    li.innerHTML = `
+      <div class="drag-item-row">
+        <div class="drag-handle" title="Arrastar para reordenar">
+          <div class="drag-handle-icon"><span></span><span></span><span></span></div>
+        </div>
+        <input type="text" value="${esc(o.etapa)}" placeholder="Nome da etapa" style="flex:1;min-width:0" oninput="ordemItems[${i}].etapa=this.value">
+        <button class="btn-remove" onclick="removeOrdem(${i})">×</button>
+      </div>
+      <div class="drag-item-row second-row">
+        <span class="drag-sep">|</span>
+        <input type="number" class="min-input" value="${o.min}" min="1" max="999" placeholder="min" oninput="ordemItems[${i}].min=+this.value">
+        <span style="font-size:11px;color:#94a3b8;flex-shrink:0">min</span>
+        <select onchange="ordemItems[${i}].responsavelIndex = this.value === '' ? null : +this.value; renderOrdemAdmin();"> 
+          <option value="">Responsável</option>
+          ${escalaOptions}
+        </select>
+      </div>
+    `;
+    /* Mouse drag events */
+    li.addEventListener('dragstart', e => {
+      dragSrcIdx = i;
+      setTimeout(() => li.classList.add('dragging'), 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    li.addEventListener('dragend', () => {
+      li.classList.remove('dragging');
+      ul.querySelectorAll('.drag-item').forEach(el => el.classList.remove('drag-over'));
+    });
+    li.addEventListener('dragover', e => { e.preventDefault(); li.classList.add('drag-over'); });
+    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+    li.addEventListener('drop', e => {
+      e.preventDefault();
+      li.classList.remove('drag-over');
+      const tgtIdx = +li.dataset.idx;
+      if(dragSrcIdx !== null && dragSrcIdx !== tgtIdx) {
+        const moved = ordemItems.splice(dragSrcIdx, 1)[0];
+        ordemItems.splice(tgtIdx, 0, moved);
+        dragSrcIdx = null;
+        renderOrdemAdmin();
+      }
+    });
+    /* Touch events */
+    const handle = li.querySelector('.drag-handle');
+    handle.addEventListener('touchstart', e => {
+      touchSrcIdx = i;
+      const t = e.touches[0];
+      const rect = li.getBoundingClientRect();
+      touchClone = li.cloneNode(true);
+      touchClone.className = 'drag-item touch-clone';
+      touchClone.style.width = rect.width + 'px';
+      touchClone.style.left = rect.left + 'px';
+      touchClone.style.top = rect.top + 'px';
+      document.body.appendChild(touchClone);
+      li.style.opacity = '0.35';
+      e.preventDefault();
+    }, {passive: false});
+    handle.addEventListener('touchmove', e => {
+      if(!touchClone) return;
+      const t = e.touches[0];
+      touchClone.style.left = (t.clientX - 20) + 'px';
+      touchClone.style.top = (t.clientY - 20) + 'px';
+      ul.querySelectorAll('.drag-item').forEach(el => {
+        const r = el.getBoundingClientRect();
+        if(t.clientY >= r.top && t.clientY <= r.bottom) el.classList.add('drag-over');
+        else el.classList.remove('drag-over');
+      });
+      e.preventDefault();
+    }, {passive: false});
+    handle.addEventListener('touchend', e => {
+      if(!touchClone) return;
+      touchClone.remove(); touchClone = null;
+      li.style.opacity = '';
+      const over = ul.querySelector('.drag-item.drag-over');
+      if(over) {
+        const tgtIdx = +over.dataset.idx;
+        over.classList.remove('drag-over');
+        if(touchSrcIdx !== null && touchSrcIdx !== tgtIdx) {
+          const moved = ordemItems.splice(touchSrcIdx, 1)[0];
+          ordemItems.splice(tgtIdx, 0, moved);
+          renderOrdemAdmin();
+        }
+      }
+      touchSrcIdx = null;
+    });
+    ul.appendChild(li);
+  });
+}
+
+function addOrdemItem() { ordemItems.push({etapa:'',min:5,responsavelIndex:null}); renderOrdemAdmin(); }
+function removeOrdem(i) { ordemItems.splice(i,1); renderOrdemAdmin(); }
+
+function renderEscalaAdmin() {
+  const c = document.getElementById('escala-list');
+  c.innerHTML = escalaItems.map((e,i) => `
+    <div class="escala-admin-item">
+      <input type="text" value="${esc(e.funcao)}" placeholder="Função" oninput="escalaItems[${i}].funcao=this.value; renderOrdemAdmin(); renderEscalaAdmin();">
+      <input type="text" value="${esc(e.nome)}" placeholder="Nome do servo" oninput="escalaItems[${i}].nome=this.value; renderOrdemAdmin(); renderEscalaAdmin();">
+      <button class="btn-remove" onclick="removeEscala(${i})">×</button>
+    </div>
+  `).join('');
+}
+function addEscalaItem() { escalaItems.push({funcao:'',nome:''}); renderEscalaAdmin(); renderOrdemAdmin(); }
+function removeEscala(i) { escalaItems.splice(i,1); renderEscalaAdmin(); renderOrdemAdmin(); }
+
+function salvarEvento() {
+  const data=document.getElementById('f-data').value;
+  const tipo=document.getElementById('f-tipo').value;
+  const hora=document.getElementById('f-hora').value;
+  const tema=document.getElementById('f-tema').value;
+  const al=document.getElementById('form-alert');
+  if(!data){al.innerHTML='<div class="alert error">Selecione a data.</div>'; showToast('Selecione a data.', 'error'); return;}
+  // Se tipo for 'Outro' exige nome do evento/culto
+  if(tipo==='Outro' && (!tema || !tema.trim())){ al.innerHTML='<div class="alert error">Para o tipo "Outro" informe o nome do Evento/Culto.</div>'; showToast('Informe o nome do Evento/Culto para o tipo "Outro".', 'error'); return; }
+  const ev={data,tipo,hora,tema,
+    ordem:ordemItems.filter(o=>o.etapa.trim()).map(o=>({etapa:o.etapa,min:o.min,responsavel:o.responsavelIndex!=null && escalaItems[o.responsavelIndex]? (escalaItems[o.responsavelIndex].nome || escalaItems[o.responsavelIndex].funcao) : ''})),
+    escala:escalaItems.filter(e=>e.funcao.trim()&&e.nome.trim())};
+  const editIdx = document.getElementById('f-data').dataset.editIdx;
+  let idx = -1;
+  let isEdit = false;
+  if(editIdx !== undefined && editIdx !== '') {
+    // Edição de evento existente
+    idx = +editIdx;
+    if(idx >= 0 && idx < eventos.length) {
+      eventos[idx] = ev;
+      isEdit = true;
+    }
+    delete document.getElementById('f-data').dataset.editIdx;
+  } else {
+    // Novo evento
+    idx = eventos.findIndex(e => e.data === data && e.tipo === tipo);
+    if(idx >= 0) eventos[idx] = ev;
+    else eventos.push(ev);
+  }
+  eventos.sort((a,b)=>a.data.localeCompare(b.data));
+  localStorage.setItem('ibns_eventos',JSON.stringify(eventos));
+  al.innerHTML=`<div class="alert success">Evento ${isEdit ? 'atualizado' : 'salvo'} com sucesso!</div>`;
+  showToast(`Evento ${isEdit ? 'atualizado' : 'salvo'} com sucesso!`, 'success');
+  renderEventosList();
+  const btn = document.querySelector('[onclick="salvarEvento()"]');
+  if(btn) btn.textContent = 'Salvar Evento';
+  // Limpar formulário
+  setTimeout(() => {
+    document.getElementById('f-data').value = '';
+    document.getElementById('f-tema').value = '';
+    ordemItems = [
+      {etapa:'Abertura em oração',min:3,responsavelIndex:null},{etapa:'Louvor de entrada',min:15,responsavelIndex:null},
+      {etapa:'Avisos',min:5,responsavelIndex:null},{etapa:'Leitura Bíblica',min:5,responsavelIndex:null},
+      {etapa:'Mensagem',min:40,responsavelIndex:null},{etapa:'Dízimos e Ofertas',min:7,responsavelIndex:null},{etapa:'Encerramento',min:5,responsavelIndex:null}
+    ];
+    escalaItems = ['Pregador / Ministro','Louvor / Música','Leitura Bíblica','Oração Inicial','Oração Final','Dízimos e Ofertas','Mídias / Projeção','Recepção / Portaria'].map(f=>({funcao:f,nome:''}));
+    renderOrdemAdmin();
+    renderEscalaAdmin();
+    al.innerHTML = '';
+    showEventForm(false);
+  }, 3000);
+}
+
+function editarEvento(i) {
+  const ev = eventos[i];
+  if(!ev) return;
+  document.getElementById('f-data').value = ev.data;
+  document.getElementById('f-tipo').value = ev.tipo;
+  document.getElementById('f-hora').value = ev.hora;
+  document.getElementById('f-tema').value = ev.tema || '';
+  // Rebuild ordemItems from event
+  ordemItems = (ev.ordem || []).map(o => {
+    const escIdx = escalaItems.findIndex(e => e.nome === o.responsavel || e.funcao === o.responsavel);
+    return { etapa: o.etapa, min: o.min, responsavelIndex: escIdx >= 0 ? escIdx : null };
+  });
+  // Rebuild escalaItems from event
+  escalaItems = ev.escala ? ev.escala.map(e => ({funcao: e.funcao, nome: e.nome})) : [];
+  renderOrdemAdmin();
+  renderEscalaAdmin();
+  // Mark that we're in edit mode
+  document.getElementById('f-data').dataset.editIdx = i;
+  const btn = document.querySelector('[onclick="salvarEvento()"]');
+  if(btn) btn.textContent = 'Atualizar Evento';
+  showEventForm(true);
+  // Scroll to form
+  document.getElementById('f-data').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderEventosList() {
+  const c=document.getElementById('eventos-lista'); if(!c) return;
+  
+  // Get filter values
+  const filterMes = document.getElementById('filter-mes')?.value || '';
+  const filterBusca = document.getElementById('filter-busca')?.value.toLowerCase() || '';
+  
+  // Filter eventos
+  let filtered = eventos.filter(e => {
+    // Filter by month/year
+    if(filterMes && e.data.substring(0,7) !== filterMes) return false;
+    
+    // Filter by search text (tipo, tema)
+    if(filterBusca) {
+      const searchFields = (e.tipo + ' ' + (e.tema || '')).toLowerCase();
+      if(!searchFields.includes(filterBusca)) return false;
+    }
+    
+    return true;
+  });
+  
+  const el=document.getElementById('eventos-count'); 
+  if(el) el.textContent=filtered.length;
+  
+  if(!filtered.length){c.innerHTML='<p style="font-size:13px;color:#94a3b8;text-align:center;padding:20px">Nenhum evento encontrado</p>';return;}
+  
+  c.innerHTML=filtered.map((e,fi)=>{
+    const idx = eventos.indexOf(e);
+    return `
+    <div class="evento-list-item">
+      <div>
+        <div class="ei-title">${esc(e.tipo)}</div>
+        <div class="ei-meta">${formatDate(e.data)} às ${e.hora}${e.tema?' — '+esc(e.tema):''}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-danger" style="background:#e3f2fd;color:#1976d2" onclick="editarEvento(${idx})">Editar</button>
+        <button class="btn-danger" onclick="deletarEvento(${idx})">Excluir</button>
+      </div>
+    </div>`}).join('');
+}
+
+function deletarEvento(i) {
+  if(!confirm('Excluir este evento?')) return;
+  eventos.splice(i,1);
+  localStorage.setItem('ibns_eventos',JSON.stringify(eventos));
+  renderEventosList(); renderCulto();
+  showToast('Evento excluído com sucesso', 'success');
+}
+
+function importJSON(evt) {
+  const f=evt.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try {
+      const d=JSON.parse(e.target.result);
+      const arr=Array.isArray(d)?d:[d];
+      arr.forEach(ev=>{const idx=eventos.findIndex(x=>x.data===ev.data&&x.tipo===ev.tipo);if(idx>=0)eventos[idx]=ev;else eventos.push(ev);});
+      eventos.sort((a,b)=>a.data.localeCompare(b.data));
+      localStorage.setItem('ibns_eventos',JSON.stringify(eventos));
+      renderEventosList(); renderCulto();
+      const al=document.getElementById('form-alert');
+      al.innerHTML=`<div class="alert success">JSON importado! ${arr.length} evento(s).</div>`;
+      showToast(`JSON importado! ${arr.length} evento(s).`, 'success');
+      setTimeout(()=>al.innerHTML='',4000);
+    } catch(err){ showToast('Erro ao importar JSON: '+(err.message||''),'error'); }
+  };
+  r.readAsText(f);
+}
+
+function saveSheets() {
+  const url=document.getElementById('sheets-url').value.trim();
+  if(!url){ showToast('Informe a URL do Google Sheets.','error'); return; }
+  localStorage.setItem('ibns_sheets_url',url);
+  const al=document.getElementById('form-alert');
+  al.innerHTML='<div class="alert info">URL salva! Integração com Google Sheets será configurada na próxima etapa.</div>';
+  showToast('URL salva! Integração configurada.', 'info');
+  setTimeout(()=>al.innerHTML='',5000);
+}
+
+function getEventoMaisProximo() {
+  if(!eventos.length) return null;
+  const hoje=new Date(); hoje.setHours(0,0,0,0);
+  const fut=eventos.filter(e=>new Date(e.data+'T00:00:00')>=hoje);
+  return fut.length?fut[0]:eventos[eventos.length-1];
+}
+
+function initCalendar() {
+  const hoje = new Date();
+  calendarYear = hoje.getFullYear();
+  calendarMonth = hoje.getMonth();
+  calendarOpen = false;
+  renderCalendar();
+}
+
+function changeMonth(delta) {
+  calendarMonth += delta;
+  if(calendarMonth < 0) { calendarMonth = 11; calendarYear -= 1; }
+  if(calendarMonth > 11) { calendarMonth = 0; calendarYear += 1; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const weekNames = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const calendarMonthYear = document.getElementById('calendar-month-year');
+  const grid = document.getElementById('calendar-grid');
+  const selectedLabel = document.getElementById('selected-date-display');
+  if(!calendarMonthYear || !grid || !selectedLabel) return;
+  calendarMonthYear.textContent = `${monthNames[calendarMonth]} ${calendarYear}`;
+  grid.innerHTML = '';
+  weekNames.forEach(day => {
+    const el = document.createElement('div');
+    el.className = 'weekday';
+    el.textContent = day;
+    grid.appendChild(el);
+  });
+  const firstOfMonth = new Date(calendarYear, calendarMonth, 1);
+  const startIndex = firstOfMonth.getDay();
+  const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  const eventDays = new Set(eventos.filter(e => {
+    const [y,m] = e.data.split('-');
+    return +y === calendarYear && +m === calendarMonth + 1;
+  }).map(e => e.data));
+  const todayStr = new Date().toISOString().slice(0,10);
+  for(let i = 0; i < startIndex; i++) {
+    const blank = document.createElement('div');
+    blank.className = 'calendar-day empty';
+    grid.appendChild(blank);
+  }
+  for(let day = 1; day <= daysInMonth; day++) {
+    const dateValue = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'calendar-day';
+    if(dateValue === todayStr) btn.classList.add('today');
+    if(eventDays.has(dateValue)) btn.classList.add('has-event');
+    if(dateValue === dataSelecionada) btn.classList.add('selected');
+    btn.textContent = day;
+    btn.onclick = () => {
+      document.getElementById('date-picker-hidden').value = dateValue;
+      selectDate(dateValue);
+    };
+    grid.appendChild(btn);
+  }
+  selectedLabel.textContent = dataSelecionada ? `Data selecionada: ${formatDate(dataSelecionada)}` : 'Selecione uma data no calendário.';
+  // sync panel visibility and toggle label
+  const panel = document.getElementById('calendar-panel');
+  const toggleLabel = document.getElementById('calendar-toggle-label');
+  if(panel) panel.style.display = calendarOpen ? 'block' : 'none';
+  if(toggleLabel) toggleLabel.textContent = calendarOpen ? 'Fechar calendário' : (dataSelecionada ? formatDate(dataSelecionada) : 'Selecionar data');
+}
+
+function selectDate(val) {
+  dataSelecionada = val;
+  const hidden = document.getElementById('date-picker-hidden');
+  if(hidden) hidden.value = val;
+  // collapse calendar after selecting
+  calendarOpen = false;
+  renderCalendar();
+  renderCulto();
+  renderEscala();
+}
+
+function cancelarEdicao() {
+  const dataInput = document.getElementById('f-data');
+  const tipoInput = document.getElementById('f-tipo');
+  const horaInput = document.getElementById('f-hora');
+  const temaInput = document.getElementById('f-tema');
+  const alertBox = document.getElementById('form-alert');
+  if(dataInput) dataInput.value = '';
+  if(tipoInput) tipoInput.value = 'Celebração da Família';
+  if(horaInput) horaInput.value = '09:00';
+  if(temaInput) temaInput.value = '';
+  if(alertBox) alertBox.innerHTML = '';
+  delete dataInput.dataset.editIdx;
+  const btn = document.querySelector('[onclick="salvarEvento()"]');
+  if(btn) btn.textContent = 'Salvar Evento';
+  showEventForm(false);
+  ordemItems = [
+    {etapa:'Abertura em oração',min:3,responsavelIndex:null},
+    {etapa:'Louvor de entrada',min:15,responsavelIndex:null},
+    {etapa:'Avisos',min:5,responsavelIndex:null},
+    {etapa:'Leitura Bíblica',min:5,responsavelIndex:null},
+    {etapa:'Mensagem',min:40,responsavelIndex:null},
+    {etapa:'Dízimos e Ofertas',min:7,responsavelIndex:null},
+    {etapa:'Encerramento',min:5,responsavelIndex:null}
+  ];
+  escalaItems = ['Pregador / Ministro','Louvor / Música','Leitura Bíblica','Oração Inicial','Oração Final','Dízimos e Ofertas','Mídias / Projeção','Recepção / Portaria'].map(f=>({funcao:f,nome:''}));
+  renderOrdemAdmin();
+  renderEscalaAdmin();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderCulto() {
+  // handle multiple events on same date
+  let ev = null;
+  if(dataSelecionada) {
+    const matches = eventos.map((e,i)=>({e,i})).filter(x=>x.e.data===dataSelecionada);
+    if(matches.length>1) {
+      // if not set or out of range, default to first
+      if(selectedEventoIndex==null || !eventos[selectedEventoIndex] || eventos[selectedEventoIndex].data!==dataSelecionada) selectedEventoIndex = matches[0].i;
+      ev = eventos[selectedEventoIndex];
+      // build selector UI
+      const selectorContainer = document.getElementById('event-selector-container');
+      selectorContainer.innerHTML = '';
+      const sel = document.createElement('select');
+      sel.id = 'multi-event-select';
+      sel.onchange = function(){ chooseEvento(+this.value); };
+      matches.forEach(m => {
+        const o = document.createElement('option');
+        o.value = m.i; o.text = `${m.e.tipo}${m.e.tema? ' — '+m.e.tema : ''}${m.e.hora? ' ('+m.e.hora+')': ''}`;
+        if(m.i===selectedEventoIndex) o.selected=true;
+        sel.appendChild(o);
+      });
+      const label = document.createElement('label');
+      label.textContent = 'Selecionar evento';
+      selectorContainer.appendChild(label);
+      selectorContainer.appendChild(sel);
+      selectorContainer.style.display = 'block';
+    } else if(matches.length===1) {
+      ev = matches[0].e;
+      selectedEventoIndex = eventos.findIndex(x=>x===ev);
+      document.getElementById('event-selector-container').style.display = 'none';
+    }
+  } else {
+    ev = getEventoMaisProximo();
+    document.getElementById('event-selector-container').style.display = 'none';
+  }
+  if(!ev){document.getElementById('event-display').innerHTML='<div class="empty-state"><div class="icon">📅</div><p>Nenhum evento encontrado.<br>Cadastre no Painel Admin.</p></div>';return;}
+  if(!dataSelecionada&&dpElem) dpElem.value=ev.data;
+  const chKey=ev.data+'_'+ev.tipo;
+  const ch=checklist[chKey]||{};
+  const total=ev.ordem.reduce((s,o)=>s+(+o.min||0),0);
+  const done=ev.ordem.filter((_,i)=>ch[i]).length;
+  const pct=ev.ordem.length?Math.round(done/ev.ordem.length*100):0;
+  let horaFim='';
+  if(ev.hora&&total){const[hh,mm]=ev.hora.split(':').map(Number);const fim=new Date(2000,0,1,hh,mm+total);horaFim=fim.toTimeString().slice(0,5);}
+  const ordemHTML=ev.ordem.map((o,i)=>`
+    <div class="ordem-item">
+      <div class="ordem-num">${i+1}</div>
+      <div class="check-btn ${ch[i]?'checked':''}" onclick="toggleCheck('${chKey}',${i})"></div>
+      <div class="ordem-info">
+        <div class="ordem-nome ${ch[i]?'done':''}">${esc(o.etapa)}</div>
+        ${o.min?`<div class="ordem-time">${o.min} min</div>`:''}
+      </div>
+      ${o.responsavel?`<div class="ordem-responsavel">${esc(o.responsavel)}</div>`:''}
+    </div>`).join('');
+  // append the main event card after any selector previously inserted
+  const container = document.createElement('div');
+  container.innerHTML = `
+    <div class="event-banner">
+      <div>
+        <div class="tipo">${esc(ev.tipo)}</div>
+        <div class="titulo">${esc(ev.tema||ev.tipo)}</div>
+        <div class="meta"><span>📅 ${formatDate(ev.data)}</span><span>🕐 ${ev.hora}</span></div>
+      </div>
+      ${total?`<div class="banner-right">
+        <div class="banner-info">
+          <div class="label">Tempo estimado</div>
+          <div class="value">${formatMin(total)}${horaFim?' → '+horaFim:''}</div>
+        </div>
+        <div class="banner-info" style="margin-top:10px">
+          <div class="label">% concluído</div>
+          <div class="value">${pct}%</div>
+        </div>
+      </div>`:''}
+    </div>
+    <div class="section-card">
+      <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <div>📋 Ordem do Culto</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="btn-reorder" id="culto-reorder-toggle" onclick="toggleReorder()" title="${cultoReorderMode?'Cancelar':'Reordenar'}" style="background:transparent;border:none;color:#6b7280;font-size:18px;padding:4px 8px;cursor:pointer">${cultoReorderMode?'✖':'✎'}</button>
+          <button type="button" class="btn-save-order" id="culto-save-order" style="display:${cultoReorderMode?'inline-flex':'none'};padding:6px 10px">Salvar Ordem</button>
+        </div>
+      </div>
+      ${total?`<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`:''}
+      <div id="culto-ordem-list" class="culto-ordem-list">
+        ${ordemHTML||'<p style="font-size:13px;color:#94a3b8;padding:8px 0">Nenhuma etapa cadastrada</p>'}
+      </div>
+    </div>`;
+  // append the event content to event-display
+  const ed = document.getElementById('event-display');
+  ed.innerHTML = '';
+  ed.appendChild(container);
+  // ensure current index and render editable list if needed
+  currentCultoEventIndex = eventos.indexOf(ev);
+  // attach save button handler
+  const saveBtn = document.getElementById('culto-save-order');
+  if(saveBtn) {
+    saveBtn.onclick = saveCultoOrder;
+    saveBtn.style.display = cultoReorderMode ? 'inline-flex' : 'none';
+  }
+  const toggleBtn = document.getElementById('culto-reorder-toggle');
+  if(toggleBtn) {
+    toggleBtn.innerHTML = cultoReorderMode ? '✖' : '✎';
+    toggleBtn.title = cultoReorderMode ? 'Cancelar' : 'Reordenar';
+  }
+  renderCultoOrderItems();
+}
+
+function chooseEvento(idx) {
+  selectedEventoIndex = idx;
+  dataSelecionada = eventos[idx] ? eventos[idx].data : dataSelecionada;
+  renderCulto(); renderEscala();
+}
+
+function renderCultoOrderItems() {
+  const listC = document.getElementById('culto-ordem-list');
+  if(!listC) return;
+  const evIdx = currentCultoEventIndex;
+  const ev = eventos[evIdx];
+  if(!ev) { listC.innerHTML = '<p style="font-size:13px;color:#94a3b8;padding:8px 0">Nenhum evento.</p>'; return; }
+  const ord = cultoReorderMode ? cultoTempOrder : ev.ordem || [];
+  if(!ord.length) { listC.innerHTML = '<p style="font-size:13px;color:#94a3b8;padding:8px 0">Nenhuma etapa cadastrada</p>'; return; }
+  if(!cultoReorderMode) {
+    listC.innerHTML = ord.map((o,i)=>`<div class="ordem-item"><div class="ordem-num">${i+1}</div><div class="check-btn" style="visibility:hidden"></div><div class="ordem-info"><div class="ordem-nome">${esc(o.etapa)}</div>${o.min?`<div class="ordem-time">${o.min} min</div>`:''}</div>${o.responsavel?`<div class="ordem-responsavel">${esc(o.responsavel)}</div>`:''}</div>`).join('');
+    return;
+  }
+  // render draggable items
+  listC.innerHTML = '';
+  ord.forEach((o,i)=>{
+    const item = document.createElement('div');
+    item.className = 'culto-ordem-item';
+    item.draggable = true;
+    item.dataset.idx = i;
+    item.innerHTML = `<div class="culto-drag-handle">☰</div><div style="flex:1"><div style="font-weight:600">${esc(o.etapa)}</div><div style="font-size:11px;color:#94a3b8">${o.min?o.min+' min':''}</div></div>`; 
+    // drag events
+    item.addEventListener('dragstart', e => { cultoDragSrcIdx = i; setTimeout(()=>item.classList.add('dragging'),0); e.dataTransfer.effectAllowed='move'; });
+    item.addEventListener('dragend', () => { item.classList.remove('dragging'); listC.querySelectorAll('.culto-ordem-item').forEach(el=>el.classList.remove('drag-over')); });
+    item.addEventListener('dragover', e=>{ e.preventDefault(); item.classList.add('drag-over'); });
+    item.addEventListener('dragleave', ()=> item.classList.remove('drag-over'));
+    item.addEventListener('drop', e => { e.preventDefault(); item.classList.remove('drag-over'); const tgtIdx = +item.dataset.idx; if(cultoDragSrcIdx!==null && cultoDragSrcIdx!==tgtIdx){ const moved = cultoTempOrder.splice(cultoDragSrcIdx,1)[0]; cultoTempOrder.splice(tgtIdx,0,moved); cultoDragSrcIdx = null; renderCultoOrderItems(); } });
+    listC.appendChild(item);
+  });
+}
+
+function toggleReorder() {
+  if(currentCultoEventIndex==null) return showToast('Nenhum evento selecionado','error');
+  cultoReorderMode = !cultoReorderMode;
+  const toggle = document.getElementById('culto-reorder-toggle');
+  const saveBtn = document.getElementById('culto-save-order');
+  if(cultoReorderMode) {
+    // enter reorder: clone ordem
+    cultoTempOrder = JSON.parse(JSON.stringify(eventos[currentCultoEventIndex].ordem || []));
+    if(toggle) { toggle.innerHTML = '✖'; toggle.title = 'Cancelar'; }
+    if(saveBtn) saveBtn.style.display = 'inline-flex';
+  } else {
+    cultoTempOrder = [];
+    if(toggle) { toggle.innerHTML = '✎'; toggle.title = 'Reordenar'; }
+    if(saveBtn) saveBtn.style.display = 'none';
+  }
+  renderCultoOrderItems();
+}
+
+
+
+function saveCultoOrder(){
+  if(currentCultoEventIndex==null) return showToast('Nenhum evento selecionado','error');
+  eventos[currentCultoEventIndex].ordem = cultoTempOrder;
+  localStorage.setItem('ibns_eventos',JSON.stringify(eventos));
+  cultoReorderMode = false;
+  const toggle = document.getElementById('culto-reorder-toggle');
+  const saveBtn = document.getElementById('culto-save-order');
+  if(toggle) { toggle.innerHTML = '✎'; toggle.title = 'Reordenar'; }
+  if(saveBtn) saveBtn.style.display = 'none';
+  renderCulto();
+  showToast('Ordem do culto salva','success');
+}
+
+function renderEscala() {
+  let ev = null;
+  if(dataSelecionada) {
+    if(selectedEventoIndex!=null && eventos[selectedEventoIndex] && eventos[selectedEventoIndex].data===dataSelecionada) ev = eventos[selectedEventoIndex];
+    else ev = eventos.find(e=>e.data===dataSelecionada);
+  } else ev = getEventoMaisProximo();
+  if(!ev){document.getElementById('escala-display').innerHTML='<div class="empty-state"><div class="icon">👥</div><p>Selecione um evento para ver a escala.</p></div>';return;}
+  const itens=(ev.escala||[]).map(e=>`
+    <div class="escala-item">
+      <div class="avatar">${initials(e.nome)}</div>
+      <div><div style="font-size:11px;color:var(--ibns-light)">${esc(e.funcao)}</div><div style="font-size:14px;font-weight:500;color:#1e293b">${esc(e.nome)}</div></div>
+    </div>`).join('');
+  document.getElementById('escala-display').innerHTML=`
+    <div class="event-banner" style="margin:0 0 16px">
+      <div class="tipo">${esc(ev.tipo)}</div>
+      <div class="titulo">${esc(ev.tema||ev.tipo)}</div>
+      <div class="meta"><span>📅 ${formatDate(ev.data)}</span><span>🕐 ${ev.hora}</span></div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">👥 Escala de Servos</div>
+      ${itens||'<p style="font-size:13px;color:#94a3b8;padding:8px 0">Nenhum servo escalado</p>'}
+    </div>`;
+}
+
+function toggleCheck(key,idx) {
+  if(!checklist[key]) checklist[key]={};
+  checklist[key][idx]=!checklist[key][idx];
+  localStorage.setItem('ibns_checklist',JSON.stringify(checklist));
+  renderCulto();
+}
+
+function formatDate(d) {
+  if(!d) return '';
+  const[y,m,day]=d.split('-');
+  const dt=new Date(+y,+m-1,+day);
+  return `${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][dt.getDay()]}, ${day} ${['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][+m-1]} ${y}`;
+}
+function formatMin(m){return m<60?m+'min':Math.floor(m/60)+'h'+(m%60?(m%60)+'min':'');}
+function initials(n){return n.split(' ').filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join('');}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+window.onload=()=>{
+  if(!eventos.length){
+    const hoje=new Date().toISOString().slice(0,10);
+    eventos=[{data:hoje,tipo:'Celebração da Família',hora:'09:00',tema:'A fé que move montanhas',
+      ordem:[{etapa:'Abertura em oração',min:3,responsavel:''},{etapa:'Louvor de entrada',min:15,responsavel:'Maria Souza'},{etapa:'Avisos da semana',min:5,responsavel:''},{etapa:'Leitura Bíblica',min:5,responsavel:'Carlos Lima'},{etapa:'Mensagem',min:40,responsavel:'Pr. João Silva'},{etapa:'Dízimos e Ofertas',min:7,responsavel:'Pedro Costa'},{etapa:'Encerramento',min:5,responsavel:''}],
+      escala:[{funcao:'Pregador / Ministro',nome:'Pr. João Silva'},{funcao:'Louvor / Música',nome:'Maria Souza'},{funcao:'Leitura Bíblica',nome:'Carlos Lima'},{funcao:'Oração Inicial',nome:'Ana Paula'},{funcao:'Oração Final',nome:'José Ferreira'},{funcao:'Dízimos e Ofertas',nome:'Pedro Costa'},{funcao:'Mídias / Projeção',nome:'Lucas Mendes'},{funcao:'Recepção / Portaria',nome:'Fernanda Rocha'}]}];
+    localStorage.setItem('ibns_eventos',JSON.stringify(eventos));
+  }
+  const ev=getEventoMaisProximo();
+  if(ev){
+    const dpHidden = document.getElementById('date-picker-hidden');
+    if(dpHidden) dpHidden.value = ev.data;
+    dataSelecionada = ev.data;
+    const month = +ev.data.slice(5,7) - 1;
+    const year = +ev.data.slice(0,4);
+    calendarMonth = month;
+    calendarYear = year;
+  }
+  initCalendar();
+  renderCulto();
+};
+
+// atualização em tempo real: recarrega dados do localStorage e re-renderiza a cada 3 segundos
+setInterval(()=>{
+  try{
+    const stored = JSON.parse(localStorage.getItem('ibns_eventos') || '[]');
+    const storedCheck = JSON.parse(localStorage.getItem('ibns_checklist') || '{}');
+    // assign if changed
+    if(JSON.stringify(stored)!==JSON.stringify(eventos)) eventos = stored;
+    checklist = storedCheck;
+    renderEventosList(); renderCulto(); renderEscala();
+  }catch(e){/* ignore parse errors */}
+},3000);
+</script>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

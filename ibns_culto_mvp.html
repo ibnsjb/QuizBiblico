@@ -1,0 +1,603 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, sans-serif); background: #f0f4f8; min-height: 100vh; }
+
+  :root {
+    --ibns-blue: #037fba;
+    --ibns-navy: #0c4786;
+    --ibns-dark: #1f4c66;
+    --ibns-light: #8dafc0;
+    --ibns-white: #fbfcfc;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--ibns-navy) 0%, var(--ibns-blue) 100%);
+    color: white;
+    padding: 14px 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+  .logo-circle {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; color: white; letter-spacing: 1px; flex-shrink: 0;
+  }
+  .header-text h1 { font-size: 15px; font-weight: 600; line-height: 1.2; }
+  .header-text p { font-size: 11px; opacity: 0.8; margin-top: 1px; }
+  .header-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .btn-admin { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); color: white; border-radius: 20px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
+  .btn-admin:hover { background: rgba(255,255,255,0.28); }
+
+  .nav-tabs { background: var(--ibns-navy); display: flex; }
+  .nav-tab { flex: 1; padding: 10px 8px; text-align: center; color: rgba(255,255,255,0.6); font-size: 12px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  .nav-tab.active { color: white; border-bottom-color: var(--ibns-blue); background: rgba(255,255,255,0.08); }
+
+  .page { display: none; padding: 16px; }
+  .page.active { display: block; }
+
+  .date-card {
+    background: white; border-radius: 14px; padding: 16px; margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .date-card h2 { font-size: 13px; color: var(--ibns-dark); font-weight: 500; margin-bottom: 10px; }
+  .date-input { width: 100%; border: 1.5px solid #dde3ea; border-radius: 10px; padding: 10px 14px; font-size: 15px; color: var(--ibns-navy); background: #f7fafc; outline: none; }
+  .date-input:focus { border-color: var(--ibns-blue); }
+
+  .event-banner {
+    background: linear-gradient(135deg, var(--ibns-blue) 0%, var(--ibns-dark) 100%);
+    border-radius: 14px; padding: 16px; margin-bottom: 16px; color: white;
+    box-shadow: 0 2px 8px rgba(3,127,186,0.3);
+  }
+  .event-banner .tipo { font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .event-banner .titulo { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .event-banner .meta { display: flex; gap: 16px; font-size: 13px; opacity: 0.9; }
+  .meta-item { display: flex; align-items: center; gap: 5px; }
+
+  .section-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--ibns-navy); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; padding-bottom: 8px; border-bottom: 1.5px solid #eef2f7; }
+
+  .time-summary { background: #f0f9ff; border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .time-summary .label { font-size: 12px; color: var(--ibns-dark); }
+  .time-summary .value { font-size: 14px; font-weight: 600; color: var(--ibns-navy); }
+
+  .ordem-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 0.5px solid #eef2f7;
+  }
+  .ordem-item:last-child { border-bottom: none; }
+  .check-btn {
+    width: 26px; height: 26px; border-radius: 50%; border: 2px solid #c5d4e0;
+    background: white; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .check-btn.checked { background: #22c55e; border-color: #22c55e; }
+  .check-btn.checked::after { content: '✓'; color: white; font-size: 13px; font-weight: 700; }
+  .ordem-info { flex: 1; }
+  .ordem-nome { font-size: 14px; color: #1e293b; }
+  .ordem-nome.done { text-decoration: line-through; color: #94a3b8; }
+  .ordem-time { font-size: 11px; color: var(--ibns-light); margin-top: 1px; }
+  .ordem-num { width: 22px; height: 22px; border-radius: 50%; background: #eef2f7; color: var(--ibns-dark); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  .progress-bar { height: 5px; background: #e2e8f0; border-radius: 3px; margin-bottom: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--ibns-blue), var(--ibns-dark)); border-radius: 3px; transition: width 0.3s; }
+  .progress-text { font-size: 11px; color: #64748b; text-align: right; }
+
+  .escala-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid #eef2f7; }
+  .escala-item:last-child { border-bottom: none; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--ibns-blue), var(--ibns-navy)); color: white; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .escala-info .funcao { font-size: 11px; color: var(--ibns-light); }
+  .escala-info .nome { font-size: 14px; color: #1e293b; font-weight: 500; }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  .admin-section { background: white; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .admin-section h3 { font-size: 14px; font-weight: 600; color: var(--ibns-navy); margin-bottom: 14px; }
+  label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; margin-top: 10px; }
+  label:first-of-type { margin-top: 0; }
+  input, select, textarea { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 9px; padding: 9px 12px; font-size: 14px; outline: none; font-family: inherit; color: #1e293b; background: white; }
+  input:focus, select:focus, textarea:focus { border-color: var(--ibns-blue); }
+  textarea { resize: vertical; min-height: 80px; }
+  .btn-primary { width: 100%; background: var(--ibns-blue); color: white; border: none; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 14px; }
+  .btn-primary:hover { background: var(--ibns-navy); }
+  .btn-danger { background: #ef4444; color: white; border: none; border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+
+  .evento-list-item { border: 1px solid #eef2f7; border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .evento-list-item .ei-title { font-size: 14px; font-weight: 500; color: #1e293b; }
+  .evento-list-item .ei-meta { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+  .sheets-config { background: #f0f9ff; border: 1.5px dashed var(--ibns-blue); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+  .sheets-config p { font-size: 12px; color: var(--ibns-dark); margin-bottom: 8px; line-height: 1.5; }
+  .sheets-config input { border-color: var(--ibns-blue); }
+
+  .badge { display: inline-block; background: var(--ibns-blue); color: white; border-radius: 20px; font-size: 10px; padding: 2px 8px; margin-left: 6px; }
+  .badge.green { background: #22c55e; }
+
+  .senha-overlay { position: absolute; inset: 0; background: rgba(12,71,134,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; border-radius: 0; z-index: 50; min-height: 300px; }
+  .senha-overlay h2 { color: white; font-size: 18px; margin-bottom: 6px; }
+  .senha-overlay p { color: rgba(255,255,255,0.7); font-size: 13px; margin-bottom: 20px; }
+  .senha-overlay input { max-width: 260px; text-align: center; font-size: 18px; letter-spacing: 4px; background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); color: white; border-radius: 12px; padding: 12px; }
+  .senha-overlay input::placeholder { color: rgba(255,255,255,0.4); letter-spacing: 1px; font-size: 14px; }
+  .btn-entrar { background: var(--ibns-blue); color: white; border: none; border-radius: 10px; padding: 12px 40px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; }
+  .tab-content { position: relative; }
+
+  .upload-area { border: 2px dashed #c5d4e0; border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; margin-top: 10px; }
+  .upload-area:hover { border-color: var(--ibns-blue); background: #f0f9ff; }
+  .upload-area p { font-size: 13px; color: #64748b; margin-top: 8px; }
+
+  .ordem-admin-item { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .ordem-admin-item input { flex: 1; }
+  .ordem-admin-item input.min-input { width: 60px; flex: none; text-align: center; }
+  .btn-remove { width: 28px; height: 28px; border-radius: 50%; background: #fee2e2; color: #ef4444; border: none; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .btn-add { width: 100%; background: #f0f9ff; color: var(--ibns-blue); border: 1.5px dashed var(--ibns-blue); border-radius: 9px; padding: 9px; font-size: 13px; cursor: pointer; margin-top: 4px; }
+
+  .alert { border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 12px; }
+  .alert.success { background: #dcfce7; color: #166534; }
+  .alert.error { background: #fee2e2; color: #991b1b; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-circle">IBNS</div>
+  <div class="header-text">
+    <h1>Igreja Batista Nova Sião</h1>
+    <p>Ordem do Culto & Escalas</p>
+  </div>
+  <div class="header-right">
+    <button class="btn-admin" onclick="toggleAdmin()">Admin</button>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="showPage('culto')">Culto</div>
+  <div class="nav-tab" onclick="showPage('escala')">Escala</div>
+  <div class="nav-tab" onclick="showPage('admin')">Painel</div>
+</div>
+
+<div class="tab-content">
+
+<div id="page-culto" class="page active">
+  <div class="date-card">
+    <h2>Selecionar data do evento</h2>
+    <input type="date" class="date-input" id="date-picker" onchange="selectDate(this.value)">
+  </div>
+
+  <div id="event-display"></div>
+</div>
+
+<div id="page-escala" class="page">
+  <div id="escala-display"></div>
+</div>
+
+<div id="page-admin" class="page" style="position:relative;">
+  <div id="senha-overlay" class="senha-overlay">
+    <div class="logo-circle" style="width:56px;height:56px;font-size:16px;margin-bottom:16px;background:rgba(255,255,255,0.15)">IBNS</div>
+    <h2>Painel Admin</h2>
+    <p>Digite a senha para acessar</p>
+    <input type="password" id="senha-input" placeholder="Senha" onkeydown="if(event.key==='Enter')checkSenha()">
+    <button class="btn-entrar" onclick="checkSenha()">Entrar</button>
+    <p id="senha-err" style="color:#fca5a5;font-size:12px;margin-top:10px;display:none">Senha incorreta</p>
+  </div>
+
+  <div id="admin-content" style="display:none">
+    <div class="sheets-config">
+      <p><strong>Google Sheets (CSV público)</strong><br>Cole a URL do Sheets publicado como CSV para sincronizar os dados.</p>
+      <input type="url" id="sheets-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv" style="margin-bottom:8px">
+      <button class="btn-primary" onclick="saveSheets()" style="margin-top:8px">Salvar & Carregar</button>
+    </div>
+
+    <div class="admin-section">
+      <h3>Cadastrar Evento</h3>
+      <div id="form-alert"></div>
+      <label>Data</label>
+      <input type="date" id="f-data">
+      <label>Tipo</label>
+      <select id="f-tipo">
+        <option>Culto Dominical (manhã)</option>
+        <option>Culto de Oração</option>
+        <option>Mini Vigília</option>
+        <option>Evento Especial</option>
+      </select>
+      <label>Horário</label>
+      <input type="time" id="f-hora" value="09:00">
+      <label>Tema / Descrição</label>
+      <input type="text" id="f-tema" placeholder="Ex: A fé que move montanhas">
+
+      <div style="margin-top:14px">
+        <div style="font-size:13px;font-weight:600;color:var(--ibns-navy);margin-bottom:8px">Ordem do Culto</div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:8px">Etapa | Minutos</div>
+        <div id="ordem-list"></div>
+        <button class="btn-add" onclick="addOrdemItem()">+ Adicionar etapa</button>
+      </div>
+
+      <div style="margin-top:14px">
+        <div style="font-size:13px;font-weight:600;color:var(--ibns-navy);margin-bottom:8px">Escala</div>
+        <div id="escala-list"></div>
+        <button class="btn-add" onclick="addEscalaItem()">+ Adicionar servo</button>
+      </div>
+
+      <button class="btn-primary" onclick="salvarEvento()">Salvar Evento</button>
+    </div>
+
+    <div class="admin-section">
+      <h3>Importar via JSON</h3>
+      <div class="upload-area" onclick="document.getElementById('json-file').click()">
+        <div style="font-size:28px">📂</div>
+        <p>Clique para selecionar um arquivo JSON</p>
+      </div>
+      <input type="file" id="json-file" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+
+    <div class="admin-section">
+      <h3>Eventos Cadastrados <span class="badge" id="eventos-count">0</span></h3>
+      <div id="eventos-lista"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const SENHA = 'ibns2024';
+let eventos = JSON.parse(localStorage.getItem('ibns_eventos') || '[]');
+let checklist = JSON.parse(localStorage.getItem('ibns_checklist') || '{}');
+let ordemItems = [];
+let escalaItems = [];
+let adminLogado = false;
+let dataSelecionada = '';
+
+const FUNCOES = ['Pregador / Ministro','Louvor / Música','Leitura Bíblica','Oração Inicial','Oração Final','Dízimos e Ofertas','Mídias / Projeção','Recepção / Portaria'];
+
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.nav-tab')[['culto','escala','admin'].indexOf(p)].classList.add('active');
+  if(p==='escala') renderEscala();
+  if(p==='admin') renderEventosList();
+}
+
+function toggleAdmin() { showPage('admin'); }
+
+function checkSenha() {
+  const v = document.getElementById('senha-input').value;
+  if(v === SENHA) {
+    adminLogado = true;
+    document.getElementById('senha-overlay').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    initAdminForm();
+  } else {
+    document.getElementById('senha-err').style.display = 'block';
+  }
+}
+
+function initAdminForm() {
+  ordemItems = [
+    {etapa:'Abertura em oração', min:3},
+    {etapa:'Louvor de entrada', min:15},
+    {etapa:'Avisos', min:5},
+    {etapa:'Leitura Bíblica', min:5},
+    {etapa:'Mensagem', min:40},
+    {etapa:'Dízimos e Ofertas', min:7},
+    {etapa:'Encerramento', min:5}
+  ];
+  escalaItems = FUNCOES.map(f => ({funcao: f, nome: ''}));
+  renderOrdemAdmin();
+  renderEscalaAdmin();
+  renderEventosList();
+}
+
+function renderOrdemAdmin() {
+  const c = document.getElementById('ordem-list');
+  c.innerHTML = ordemItems.map((o,i) => `
+    <div class="ordem-admin-item">
+      <span style="font-size:12px;color:#94a3b8;width:18px;text-align:center">${i+1}</span>
+      <input type="text" value="${o.etapa}" placeholder="Nome da etapa" oninput="ordemItems[${i}].etapa=this.value">
+      <input type="number" class="min-input" value="${o.min}" min="1" max="999" placeholder="min" oninput="ordemItems[${i}].min=+this.value">
+      <button class="btn-remove" onclick="removeOrdem(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function addOrdemItem() {
+  ordemItems.push({etapa:'', min:5});
+  renderOrdemAdmin();
+}
+
+function removeOrdem(i) {
+  ordemItems.splice(i,1);
+  renderOrdemAdmin();
+}
+
+function renderEscalaAdmin() {
+  const c = document.getElementById('escala-list');
+  c.innerHTML = escalaItems.map((e,i) => `
+    <div class="ordem-admin-item">
+      <select style="flex:1;min-width:0" onchange="escalaItems[${i}].funcao=this.value">
+        ${FUNCOES.map(f => `<option ${f===e.funcao?'selected':''}>${f}</option>`).join('')}
+      </select>
+      <input type="text" style="flex:1" value="${e.nome}" placeholder="Nome do servo" oninput="escalaItems[${i}].nome=this.value">
+      <button class="btn-remove" onclick="removeEscala(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function addEscalaItem() {
+  escalaItems.push({funcao: FUNCOES[0], nome:''});
+  renderEscalaAdmin();
+}
+
+function removeEscala(i) {
+  escalaItems.splice(i,1);
+  renderEscalaAdmin();
+}
+
+function salvarEvento() {
+  const data = document.getElementById('f-data').value;
+  const tipo = document.getElementById('f-tipo').value;
+  const hora = document.getElementById('f-hora').value;
+  const tema = document.getElementById('f-tema').value;
+  const alerta = document.getElementById('form-alert');
+
+  if(!data) { alerta.innerHTML='<div class="alert error">Selecione a data do evento.</div>'; return; }
+
+  const idx = eventos.findIndex(e => e.data === data && e.tipo === tipo);
+  const ev = {
+    data, tipo, hora, tema,
+    ordem: ordemItems.filter(o => o.etapa.trim()),
+    escala: escalaItems.filter(e => e.nome.trim())
+  };
+
+  if(idx >= 0) eventos[idx] = ev;
+  else eventos.push(ev);
+  eventos.sort((a,b) => a.data.localeCompare(b.data));
+
+  localStorage.setItem('ibns_eventos', JSON.stringify(eventos));
+  alerta.innerHTML='<div class="alert success">Evento salvo com sucesso!</div>';
+  renderEventosList();
+  setTimeout(() => alerta.innerHTML='', 3000);
+}
+
+function renderEventosList() {
+  const c = document.getElementById('eventos-lista');
+  if(!c) return;
+  document.getElementById('eventos-count').textContent = eventos.length;
+  if(!eventos.length) { c.innerHTML='<p style="font-size:13px;color:#94a3b8;text-align:center;padding:20px">Nenhum evento cadastrado</p>'; return; }
+  c.innerHTML = eventos.map((e,i) => `
+    <div class="evento-list-item">
+      <div>
+        <div class="ei-title">${e.tipo}</div>
+        <div class="ei-meta">${formatDate(e.data)} às ${e.hora}${e.tema ? ' — '+e.tema : ''}</div>
+      </div>
+      <button class="btn-danger" onclick="deletarEvento(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function deletarEvento(i) {
+  eventos.splice(i,1);
+  localStorage.setItem('ibns_eventos', JSON.stringify(eventos));
+  renderEventosList();
+  renderCulto();
+}
+
+function importJSON(evt) {
+  const f = evt.target.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const arr = Array.isArray(data) ? data : [data];
+      arr.forEach(ev => {
+        const idx = eventos.findIndex(x => x.data===ev.data && x.tipo===ev.tipo);
+        if(idx>=0) eventos[idx]=ev; else eventos.push(ev);
+      });
+      eventos.sort((a,b) => a.data.localeCompare(b.data));
+      localStorage.setItem('ibns_eventos', JSON.stringify(eventos));
+      renderEventosList();
+      renderCulto();
+      alert('JSON importado com sucesso! '+arr.length+' evento(s).');
+    } catch(err) { alert('Erro ao ler o JSON: '+err.message); }
+  };
+  r.readAsText(f);
+}
+
+function saveSheets() {
+  const url = document.getElementById('sheets-url').value.trim();
+  if(!url) return;
+  localStorage.setItem('ibns_sheets_url', url);
+  alert('URL salva! A integração com Google Sheets será ativada em breve (requer backend ou CORS habilitado no Sheets público).');
+}
+
+function getEventoMaisProximo() {
+  if(!eventos.length) return null;
+  const hoje = new Date();
+  hoje.setHours(0,0,0,0);
+  const futuros = eventos.filter(e => new Date(e.data+'T00:00:00') >= hoje);
+  if(futuros.length) return futuros[0];
+  return eventos[eventos.length-1];
+}
+
+function selectDate(val) {
+  dataSelecionada = val;
+  renderCulto();
+  renderEscala();
+}
+
+function renderCulto() {
+  const dp = document.getElementById('date-picker');
+  const ev = dataSelecionada ? eventos.find(e => e.data === dataSelecionada) : getEventoMaisProximo();
+
+  if(!ev) {
+    document.getElementById('event-display').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📅</div>
+        <p>Nenhum evento encontrado.<br>Cadastre eventos no Painel Admin.</p>
+      </div>`;
+    return;
+  }
+
+  if(!dataSelecionada && dp) dp.value = ev.data;
+
+  const chKey = ev.data+'_'+ev.tipo;
+  const ch = checklist[chKey] || {};
+  const total = ev.ordem.reduce((s,o) => s+(+o.min||0), 0);
+  const done = ev.ordem.filter((_,i) => ch[i]).length;
+  const pct = ev.ordem.length ? Math.round(done/ev.ordem.length*100) : 0;
+
+  let horaFim = '';
+  if(ev.hora && total) {
+    const [hh,mm] = ev.hora.split(':').map(Number);
+    const fim = new Date(2000,0,1,hh,mm+total);
+    horaFim = fim.toTimeString().slice(0,5);
+  }
+
+  const ordemHTML = ev.ordem.map((o,i) => `
+    <div class="ordem-item">
+      <div class="ordem-num">${i+1}</div>
+      <div class="check-btn ${ch[i]?'checked':''}" onclick="toggleCheck('${chKey}',${i})"></div>
+      <div class="ordem-info">
+        <div class="ordem-nome ${ch[i]?'done':''}">${o.etapa}</div>
+        ${o.min ? `<div class="ordem-time">${o.min} min</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('event-display').innerHTML = `
+    <div class="event-banner">
+      <div class="tipo">${ev.tipo}</div>
+      <div class="titulo">${ev.tema || ev.tipo}</div>
+      <div class="meta">
+        <span class="meta-item">📅 ${formatDate(ev.data)}</span>
+        <span class="meta-item">🕐 ${ev.hora}</span>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">📋 Ordem do Culto</div>
+      ${total ? `
+      <div class="time-summary">
+        <div>
+          <div class="label">Tempo total estimado</div>
+          <div class="value">${formatMin(total)}${horaFim ? ' → Término: '+horaFim : ''}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="label">Concluído</div>
+          <div class="value">${pct}%</div>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      ` : ''}
+      ${ordemHTML || '<p style="font-size:13px;color:#94a3b8;padding:8px 0">Nenhuma etapa cadastrada</p>'}
+    </div>
+  `;
+}
+
+function renderEscala() {
+  const ev = dataSelecionada ? eventos.find(e => e.data === dataSelecionada) : getEventoMaisProximo();
+  if(!ev) {
+    document.getElementById('escala-display').innerHTML = `<div class="empty-state"><div class="icon">👥</div><p>Selecione um evento para ver a escala.</p></div>`;
+    return;
+  }
+  const itens = (ev.escala||[]).map(e => `
+    <div class="escala-item">
+      <div class="avatar">${initials(e.nome)}</div>
+      <div class="escala-info">
+        <div class="funcao">${e.funcao}</div>
+        <div class="nome">${e.nome}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('escala-display').innerHTML = `
+    <div class="event-banner" style="margin:16px 16px 0">
+      <div class="tipo">${ev.tipo}</div>
+      <div class="titulo">${ev.tema || ev.tipo}</div>
+      <div class="meta"><span class="meta-item">📅 ${formatDate(ev.data)}</span><span class="meta-item">🕐 ${ev.hora}</span></div>
+    </div>
+    <div class="section-card" style="margin:16px">
+      <div class="section-title">👥 Escala de Servos</div>
+      ${itens || '<p style="font-size:13px;color:#94a3b8;padding:8px 0">Nenhum servo escalado</p>'}
+    </div>
+  `;
+}
+
+function toggleCheck(key, idx) {
+  if(!checklist[key]) checklist[key] = {};
+  checklist[key][idx] = !checklist[key][idx];
+  localStorage.setItem('ibns_checklist', JSON.stringify(checklist));
+  renderCulto();
+}
+
+function formatDate(d) {
+  if(!d) return '';
+  const [y,m,day] = d.split('-');
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const dt = new Date(+y,+m-1,+day);
+  return `${dias[dt.getDay()]}, ${day} ${meses[+m-1]} ${y}`;
+}
+
+function formatMin(min) {
+  if(min < 60) return min+'min';
+  return Math.floor(min/60)+'h'+(min%60 ? (min%60)+'min' : '');
+}
+
+function initials(nome) {
+  return nome.split(' ').filter(Boolean).slice(0,2).map(n=>n[0].toUpperCase()).join('');
+}
+
+window.onload = () => {
+  const ev = getEventoMaisProximo();
+  if(ev) { document.getElementById('date-picker').value = ev.data; dataSelecionada = ev.data; }
+  renderCulto();
+
+  if(!eventos.length) {
+    const demo = [{
+      data: new Date().toISOString().slice(0,10),
+      tipo: 'Culto Dominical (manhã)',
+      hora: '09:00',
+      tema: 'A fé que move montanhas',
+      ordem: [
+        {etapa:'Abertura em oração', min:3},
+        {etapa:'Louvor de entrada', min:15},
+        {etapa:'Avisos da semana', min:5},
+        {etapa:'Leitura Bíblica', min:5},
+        {etapa:'Mensagem', min:40},
+        {etapa:'Dízimos e Ofertas', min:7},
+        {etapa:'Encerramento', min:5}
+      ],
+      escala: [
+        {funcao:'Pregador / Ministro', nome:'Pr. João Silva'},
+        {funcao:'Louvor / Música', nome:'Maria Souza'},
+        {funcao:'Leitura Bíblica', nome:'Carlos Lima'},
+        {funcao:'Oração Inicial', nome:'Ana Paula'},
+        {funcao:'Oração Final', nome:'José Ferreira'},
+        {funcao:'Dízimos e Ofertas', nome:'Pedro Costa'},
+        {funcao:'Mídias / Projeção', nome:'Lucas Mendes'},
+        {funcao:'Recepção / Portaria', nome:'Fernanda Rocha'}
+      ]
+    }];
+    eventos = demo;
+    localStorage.setItem('ibns_eventos', JSON.stringify(eventos));
+    renderCulto();
+  }
+};
+</script>
+</body>
+</html>

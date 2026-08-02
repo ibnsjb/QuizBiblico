@@ -1,0 +1,31 @@
+[
+  {
+    "data": "2026-06-10",
+    "tipo": "Batismos",
+    "hora": "09:00",
+    "tema": "",
+    "ordem": [
+      {
+        "etapa": "Abertura em oração",
+        "min": 3,
+        "responsavelIndex": null
+      },
+      {
+        "etapa": "Louvor de entrada",
+        "min": 15,
+        "responsavelIndex": 1
+      },
+      {
+        "etapa": "Avisos",
+        "min": 5,
+        "responsavelIndex": null
+      }
+    ],
+    "escala": [
+      {
+        "funcao": "Pregador / Ministro",
+        "nome": "Pr. João Silva"
+      }
+    ]
+  }
+]
