@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 
-const HomeClient = dynamic(() => import('@/components/quiz/home-client'), { ssr: false });
+const VerboQuiz = dynamic(() => import('@/components/game/verbo-quiz').then((module) => module.VerboQuiz), { ssr: false });
 
 export default function Home() {
-  return <HomeClient />;
+  return <VerboQuiz />;
 }
