@@ -12,15 +12,12 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NEXTAUTH_URL ??
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'Quiz Bíblico IBNS',
-  description: 'Controle de Quiz Bíblico - Painel de Pontuação em Tempo Real',
-  icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-  },
+  title: 'VerboQuiz — Quiz Bíblico',
+  description: 'Jogo de perguntas e respostas sobre a Bíblia Sagrada no cânon protestante de 66 livros.',
+  icons: { icon: '/favicon.svg', shortcut: '/favicon.svg' },
   openGraph: {
-    title: 'Quiz Bíblico IBNS',
-    description: 'Controle de Quiz Bíblico - Painel de Pontuação em Tempo Real',
+    title: 'VerboQuiz — Quiz Bíblico',
+    description: 'Teste seu conhecimento bíblico, aprenda com referências e dispute o ranking.',
     images: ['/og-image.png'],
   },
 };
@@ -28,9 +25,6 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <head>
-        <script src="https://apps.abacus.ai/chatllm/appllm-lib.js" />
-      </head>
       <body className={`${dmSans.variable} ${jakartaSans.variable} ${jetbrainsMono.variable} font-sans`}>
         {children}
         <ChunkLoadErrorHandler />
