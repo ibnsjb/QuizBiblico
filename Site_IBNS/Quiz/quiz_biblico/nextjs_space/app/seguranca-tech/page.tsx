@@ -1,6 +1,16 @@
 export const metadata = {
   title: 'TechSeg Arena — Tecnologia na Segurança Pública',
-  description: 'Quiz competitivo em tempo real com placar e auditoria de respostas.',
+  description: 'Quiz competitivo em tempo real com placar, velocidade e auditoria de respostas.',
+  openGraph: {
+    title: 'TechSeg Arena — Tecnologia na Segurança Pública',
+    description: 'Quiz competitivo em tempo real com placar, velocidade e auditoria de respostas.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'TechSeg Arena — Tecnologia na Segurança Pública',
+    description: 'Quiz competitivo em tempo real com placar, velocidade e auditoria de respostas.',
+  },
 };
 
 const SOURCE = 'https://raw.githubusercontent.com/ibnsjb/QuizBiblico/main/public/seguranca-tech/index.html';
