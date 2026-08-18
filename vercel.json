@@ -1,3 +1,7 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "rewrites": [
+    { "source": "/seguranca-tech", "destination": "/seguranca-tech/index.html" },
+    { "source": "/seguranca-tech/", "destination": "/seguranca-tech/index.html" }
+  ]
 }
