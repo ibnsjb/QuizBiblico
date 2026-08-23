@@ -101,6 +101,17 @@ async function renamePlayer(){try{const name=await rpc('ts_update_name',{p_sessi
 async function submitAnswer(k){const p=S.player,ord=p.session.current_question_index+1;if(p.answeredQuestion===ord)return;try{p.selected=k;renderPlayer();await rpc('ts_submit_answer',{p_session_id:p.sessionId,p_participant_id:p.id,p_token:p.token,p_option:k,p_client_sent_at:new Date().toISOString()});p.answeredQuestion=ord;localStorage.setItem('techseg_player',JSON.stringify(p));renderPlayer()}catch(e){p.selected=null;renderPlayer();toast(e.message,true)}}
 async function renderPlayerLeaderboard(){try{const rows=await rpc('ts_get_leaderboard',{p_code:S.player.code});$('playerView').innerHTML=`<div class="playerHead"><div class="eyebrow">Sessão finalizada</div><h2>Placar geral</h2><p class="muted">Pontuação por acerto + velocidade registrada no servidor.</p></div><div class="card" style="padding:22px;overflow:auto"><table><thead><tr><th>#</th><th>Participante</th><th>Pontos</th><th>Acertos</th><th>Tempo médio</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="${r.rank==1?'rank1':''}">${r.rank}</td><td>${esc(r.name)}</td><td><strong>${r.score}</strong></td><td>${r.correct_count}/${r.answered_count}</td><td>${r.avg_response_ms?Number(r.avg_response_ms).toFixed(0)+' ms':'—'}</td></tr>`).join('')}</tbody></table></div>`}catch(e){toast(e.message,true)}}
 (async function boot(){const saved=localStorage.getItem('techseg_player');if(saved){try{const p=JSON.parse(saved);await syncClock();const rows=await rpc('ts_resume_participant',{p_code:p.code,p_participant_id:p.id,p_token:p.token});if(rows?.length){S.player={...p,name:rows[0].participant_name,title:rows[0].session_title};await loadPlayer();return}}catch{}localStorage.removeItem('techseg_player')}if(location.hash==='#admin')openAdmin()})();
+// Reset local option state whenever the participant enters a new question.
+let lastRenderedQuestionIndex;
+const renderPlayerWithFreshOptions = renderPlayer;
+renderPlayer = function () {
+	const questionIndex = S.player?.session?.current_question_index;
+	if (questionIndex !== lastRenderedQuestionIndex) {
+		S.eliminated = [];
+		lastRenderedQuestionIndex = questionIndex;
+	}
+	renderPlayerWithFreshOptions();
+};
 </script>
 </body>
 </html>
