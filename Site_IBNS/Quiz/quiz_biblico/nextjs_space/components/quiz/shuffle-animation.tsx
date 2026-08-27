@@ -7,9 +7,11 @@ import { Shuffle } from 'lucide-react';
 interface ShuffleAnimationProps {
   groups: Record<string, GroupData>;
   order?: string[];
+  onStartQuiz?: () => void;
+  canStart?: boolean;
 }
 
-export function ShuffleAnimation({ groups, order }: ShuffleAnimationProps) {
+export function ShuffleAnimation({ groups, order, onStartQuiz, canStart }: ShuffleAnimationProps) {
   const orderedIds = order ?? Object.keys(groups ?? {});
   const names = orderedIds?.map((id: string) => groups?.[id]?.name ?? '---');
 
@@ -42,6 +44,11 @@ export function ShuffleAnimation({ groups, order }: ShuffleAnimationProps) {
             </motion.div>
           ))}
         </div>
+        {canStart && onStartQuiz && (
+          <button onClick={onStartQuiz} className="mt-6 rounded-xl bg-[var(--quiz-gold)] px-6 py-3 font-bold text-[var(--quiz-dark)] hover:bg-yellow-400 transition">
+            Iniciar Quiz
+          </button>
+        )}
       </motion.div>
     </motion.div>
   );

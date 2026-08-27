@@ -30,6 +30,7 @@ export async function createSession(name: string, date: string, config?: Session
     name,
     date,
     status: 'active',
+    quizStarted: false,
     currentRound: 1,
     currentGroupIndex: 0,
     totalRounds: config?.totalRounds ?? DEFAULT_CONFIG.totalRounds,
@@ -52,6 +53,15 @@ export async function updateSessionConfig(sessionId: string, config: SessionConf
 export async function finishSession(sessionId: string) {
   if (!database) return;
   await update(ref(database, `sessions/${sessionId}`), { status: 'finished' });
+}
+
+export async function startQuiz(sessionId: string) {
+  if (!database) return;
+  await update(ref(database, `sessions/${sessionId}`), {
+    quizStarted: true,
+    currentRound: 1,
+    currentGroupIndex: 0,
+  });
 }
 
 export async function deleteSession(sessionId: string) {
@@ -379,6 +389,7 @@ export async function clearSession(sessionId: string) {
   const updates: Record<string, any> = {
     currentRound: 1,
     currentGroupIndex: 0,
+    quizStarted: false,
     tiebreaker: null,
     groupOrder: null,
     groups: null,

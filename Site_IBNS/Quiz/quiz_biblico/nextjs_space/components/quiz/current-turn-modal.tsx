@@ -77,11 +77,11 @@ export function CurrentTurnModal({
           <div className="rounded-xl border border-[hsl(var(--border))] bg-[var(--quiz-dark)]/60 p-3 sm:p-4">
             <p className="mb-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))] sm:mb-3 sm:text-sm">Resultado</p>
             <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => onAnswer(groupId, round, true)} className="flex min-h-14 items-center justify-center gap-1 rounded-xl bg-[var(--quiz-green)] px-2 text-base font-bold text-white transition hover:bg-green-600 active:scale-95 sm:min-h-24 sm:gap-2 sm:text-xl">
-                <Check className="h-6 w-6 sm:h-7 sm:w-7" /> Acerto
+              <button onClick={() => onAnswer(groupId, round, true)} className="flex min-h-24 items-center justify-center gap-2 rounded-xl bg-[var(--quiz-green)] px-2 text-lg font-bold text-white transition hover:bg-green-600 active:scale-95 sm:min-h-32 sm:text-2xl">
+                <Check className="h-7 w-7 sm:h-8 sm:w-8" /> Acerto
               </button>
-              <button onClick={() => onAnswer(groupId, round, false)} className="flex min-h-14 items-center justify-center gap-1 rounded-xl bg-[var(--quiz-red)] px-2 text-base font-bold text-white transition hover:bg-red-700 active:scale-95 sm:min-h-24 sm:gap-2 sm:text-xl">
-                <X className="h-6 w-6 sm:h-7 sm:w-7" /> Erro
+              <button onClick={() => onAnswer(groupId, round, false)} className="flex min-h-24 items-center justify-center gap-2 rounded-xl bg-[var(--quiz-red)] px-2 text-lg font-bold text-white transition hover:bg-red-700 active:scale-95 sm:min-h-32 sm:text-2xl">
+                <X className="h-7 w-7 sm:h-8 sm:w-8" /> Erro
               </button>
             </div>
           </div>

@@ -32,6 +32,14 @@ Validar manualmente no navegador os fluxos com Firebase real.
 - [x] Manter dimensões fluidas no cabeçalho, preservando tamanhos estáticos apenas para controles essenciais.
 - [x] Validar build de produção após os ajustes.
 
+## Fluxo de cadastro e inicio do quiz
+- [x] Separar cadastro de grupos do inicio da partida com `quizStarted`.
+- [x] Adicionar `Iniciar Quiz` ao painel do administrador.
+- [x] Disponibilizar `Iniciar Quiz` durante o modal de sorteio.
+- [x] Manter o modal do grupo da vez fechado enquanto a partida nao foi iniciada.
+- [x] Ampliar os botoes de acerto, erro e ajudas no modal operacional.
+- [x] Validar build de producao apos o fluxo.
+
 ## Ajuste de layout em andamento
 - [x] Planejar modal operacional centralizado para o grupo da vez.
 - [x] Criar modal com rodada, nome, pontuacao, valor da rodada, acerto, erro, ajudas e timer.

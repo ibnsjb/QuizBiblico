@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { SessionData, GroupData, HELP_LABELS, HelpUsage } from '@/types/quiz';
 import { Podium } from './podium';
 import {
-  addGroup, removeGroup, updateGroupName, markAnswer, advanceRound,
+  addGroup, removeGroup, updateGroupName, markAnswer, advanceRound, startQuiz,
   useHelp, undoHelp, undoLastAnswer, shuffleGroups, finishSession, clearSession,
   startTiebreaker, tiebreakerAnswer, endTiebreaker
 } from '@/lib/firebase-operations';
@@ -47,6 +47,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
   const config = session?.config;
   const tiebreaker = session?.tiebreaker;
   const isFinished = session?.status === 'finished';
+  const quizStarted = session?.quizStarted === true;
 
   const currentGroupId = groupOrder?.[currentGroupIndex] ?? '';
   const allAnswered = currentGroupIndex >= (groupOrder?.length ?? 0);
@@ -60,10 +61,10 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
   }, [currentGroupId, currentRound, allAnswered, isFinished]);
 
   useEffect(() => {
-    if (currentGroupId && !allAnswered && !isFinished && !tiebreaker?.active) {
+    if (quizStarted && currentGroupId && !allAnswered && !isFinished && !tiebreaker?.active) {
       setShowTurnModal(true);
     }
-  }, [currentGroupId, currentRound, allAnswered, isFinished, tiebreaker?.active]);
+  }, [quizStarted, currentGroupId, currentRound, allAnswered, isFinished, tiebreaker?.active]);
 
   useEffect(() => {
     if (bibleTimer <= 0) return;
@@ -92,6 +93,12 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
   const handleCreateGroup = async (name: string) => {
     await addGroup(sessionId, name);
     setShowNewGroup(false);
+  };
+
+  const handleStartQuiz = async () => {
+    await startQuiz(sessionId);
+    setShowShuffle(false);
+    setShowTurnModal(true);
   };
 
   const handleShuffle = async () => {
@@ -183,6 +190,14 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
 
       {/* Action buttons */}
       <div className="flex flex-wrap justify-center gap-3 mb-6">
+                {!quizStarted && !isFinished && Object.keys(groups).length > 0 && (
+                  <button
+                    onClick={handleStartQuiz}
+                    className="flex items-center gap-2 bg-[var(--quiz-gold)] text-[var(--quiz-dark)] font-bold px-5 py-3 rounded-lg hover:bg-yellow-400 transition-all text-sm"
+                  >
+                    <ChevronRight className="w-4 h-4" /> INICIAR QUIZ
+                  </button>
+                )}
         <button
           onClick={() => {
             setShowNewGroup(true);

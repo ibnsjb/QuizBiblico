@@ -50,6 +50,7 @@ export interface SessionData {
   name: string;
   date: string;
   status: 'active' | 'finished';
+  quizStarted?: boolean;
   currentRound: number;
   currentGroupIndex: number;
   totalRounds: number;
