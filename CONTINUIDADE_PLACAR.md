@@ -40,6 +40,12 @@ Validar manualmente no navegador os fluxos com Firebase real.
 - [x] Ampliar os botoes de acerto, erro e ajudas no modal operacional.
 - [x] Validar build de producao apos o fluxo.
 
+## Ajuste final dos controles
+- [x] Aumentar os botoes de acerto e erro para toque facil.
+- [x] Dar proporcao mais quadrada aos botoes de marcacao e ajuda.
+- [x] Escurecer o verde principal para `#009b46`.
+- [x] Validar build de producao apos o ajuste visual.
+
 ## Ajuste de layout em andamento
 - [x] Planejar modal operacional centralizado para o grupo da vez.
 - [x] Criar modal com rodada, nome, pontuacao, valor da rodada, acerto, erro, ajudas e timer.
