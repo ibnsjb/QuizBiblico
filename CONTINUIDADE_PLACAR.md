@@ -25,6 +25,13 @@ Implementacao concluida e publicada no repositorio.
 ## Proxima retomada
 Validar manualmente no navegador os fluxos com Firebase real.
 
+## Ajuste de responsividade e turno público
+- [x] Reduzir o indicador `Apresentador` para apenas o ícone no topo mobile.
+- [x] Centralizar automaticamente o grupo da vez na visão pública.
+- [x] Aguardar 1,5 segundo após a marcação antes de avançar o grupo.
+- [x] Manter dimensões fluidas no cabeçalho, preservando tamanhos estáticos apenas para controles essenciais.
+- [x] Validar build de produção após os ajustes.
+
 ## Ajuste de layout em andamento
 - [x] Planejar modal operacional centralizado para o grupo da vez.
 - [x] Criar modal com rodada, nome, pontuacao, valor da rodada, acerto, erro, ajudas e timer.

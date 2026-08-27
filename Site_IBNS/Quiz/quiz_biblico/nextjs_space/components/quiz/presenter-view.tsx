@@ -108,6 +108,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
   const handleMark = async (groupId: string, round: number, correct: boolean) => {
     play(correct ? 'correct' : 'wrong');
     await markAnswer(sessionId, groupId, round, correct);
+    await new Promise((resolve) => window.setTimeout(resolve, 1500));
     await advanceRound(sessionId);
   };
 

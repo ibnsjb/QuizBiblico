@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SessionData, GroupData, HELP_LABELS } from '@/types/quiz';
 import { Podium } from './podium';
 import { motion } from 'framer-motion';
@@ -21,6 +21,7 @@ export function PublicView({ session }: PublicViewProps) {
 
   const currentGroupId = groupOrder?.[currentGroupIndex] ?? '';
   const allAnswered = currentGroupIndex >= (groupOrder?.length ?? 0);
+  const currentGroupRef = useRef<HTMLDivElement | null>(null);
   const [now, setNow] = useState(Date.now());
   const publicTheme = session?.config?.publicTheme ?? 'ocean';
   const themeClasses = {
@@ -37,6 +38,12 @@ export function PublicView({ session }: PublicViewProps) {
   }, [groups]);
 
   const getRoundPoints = (round: number) => (session?.config?.scoringRanges ?? []).find((range) => round >= range.startRound && round <= range.endRound)?.points ?? session?.config?.defaultPoints ?? 10;
+
+  useEffect(() => {
+    if (!currentGroupId || allAnswered || isFinished) return;
+    const timeout = window.setTimeout(() => currentGroupRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+    return () => window.clearTimeout(timeout);
+  }, [currentGroupId, currentRound, allAnswered, isFinished]);
 
   return (
     <div className={`min-h-screen rounded-2xl border p-3 sm:p-6 ${themeClasses}`}>
@@ -118,6 +125,7 @@ export function PublicView({ session }: PublicViewProps) {
           return (
             <motion.div
               key={gid}
+              ref={isCurrent ? currentGroupRef : undefined}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}

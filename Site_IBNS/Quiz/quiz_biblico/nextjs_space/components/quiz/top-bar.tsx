@@ -21,17 +21,17 @@ export function TopBar({ mode, onSwitchToPresenter, onSwitchToPublic, sessionNam
       animate={{ y: 0 }}
       className="fixed top-0 left-0 right-0 z-50 bg-[var(--quiz-dark)]/90 backdrop-blur-md border-b border-[hsl(var(--border))]"
     >
-      <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/placar" className="flex items-center gap-2.5" aria-label="Ir para o placar">
+      <div className="mx-auto flex min-h-16 w-full max-w-5xl items-center justify-between gap-3 px-[3%]">
+        <Link href="/placar" className="flex min-w-0 items-center gap-2" aria-label="Ir para o placar">
           <Image
             src="/logo-ibns-oficial.png"
             alt="Logo Igreja Batista Nova Sião"
             width={64}
             height={64}
-            className="h-11 w-11 object-contain"
+            className="h-10 w-10 shrink-0 object-contain sm:h-11 sm:w-11"
             priority
           />
-          <span className="font-display font-bold text-lg">
+          <span className="min-w-0 font-display text-base font-bold sm:text-lg">
             <span className="text-[var(--quiz-gold)]">Quiz</span>{' '}
             <span className="text-white">Bíblico</span>
           </span>
@@ -45,9 +45,8 @@ export function TopBar({ mode, onSwitchToPresenter, onSwitchToPublic, sessionNam
         <div className="flex items-center gap-3">
           {mode === 'apresentador' ? (
             <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1 bg-[var(--quiz-purple)] text-white text-xs font-bold px-3 py-1.5 rounded-full">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--quiz-purple)] text-white" title="Modo apresentador" aria-label="Modo apresentador">
                 <Crown className="w-3.5 h-3.5" />
-                APRESENTADOR
               </span>
               {onSwitchToPublic && (
                 <button
