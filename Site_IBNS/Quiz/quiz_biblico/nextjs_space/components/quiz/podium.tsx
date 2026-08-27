@@ -1,11 +1,13 @@
 'use client';
 
 import { GroupData } from '@/types/quiz';
+import { rankGroups } from '@/lib/ranking';
 import { motion } from 'framer-motion';
 
 interface PodiumProps {
   groups: Record<string, GroupData>;
   tiebreakerWinner?: string | null;
+  tiebreaker?: import('@/types/quiz').TiebreakerData;
 }
 
 const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
@@ -16,21 +18,20 @@ const MEDAL_BG = [
 ];
 const MEDAL_EMOJI = ['🥇', '🥈', '🥉'];
 
-export function Podium({ groups, tiebreakerWinner }: PodiumProps) {
-  const sorted = Object.entries(groups ?? {})
-    .map(([id, g]: [string, GroupData]) => ({ id, ...g }))
-    .sort((a: any, b: any) => {
+export function Podium({ groups, tiebreakerWinner, tiebreaker }: PodiumProps) {
+  const sorted = rankGroups(groups, tiebreaker)
+    .sort((a, b) => {
       if (tiebreakerWinner && tiebreakerWinner !== 'tie') {
         if (a.id === tiebreakerWinner) return -1;
         if (b.id === tiebreakerWinner) return 1;
       }
-      return (b?.total ?? 0) - (a?.total ?? 0);
+      return 0;
     });
 
   const top3 = sorted?.slice(0, 3) ?? [];
   const positions: number[] = [];
   top3.forEach((group: any, index: number) => {
-    positions[index] = index === 0 || (tiebreakerWinner && tiebreakerWinner !== 'tie') || (group.total ?? 0) !== (top3[index - 1]?.total ?? 0)
+    positions[index] = index === 0 || (group.group.total ?? 0) !== (top3[index - 1]?.group.total ?? 0) || group.tiebreakerWins !== (top3[index - 1]?.tiebreakerWins ?? 0)
       ? index + 1
       : positions[index - 1];
   });
@@ -49,12 +50,13 @@ export function Podium({ groups, tiebreakerWinner }: PodiumProps) {
         >
           <span className="text-2xl">{MEDAL_EMOJI[positions[index] - 1] ?? ''}</span>
           <div className="flex-1">
-            <p className="text-white font-bold text-sm truncate">{group?.name ?? '---'}</p>
+            <p className="text-white font-bold text-sm truncate">{group.group?.name ?? '---'}</p>
             <p className="text-[hsl(var(--muted-foreground))] text-xs">Posição {positions[index]}º</p>
           </div>
           <div className="font-mono font-bold text-xl" style={{ color: MEDAL_COLORS[positions[index] - 1] ?? '#CD7F32' }}>
-            {group?.total ?? 0}
+            {group.group?.total ?? 0}
             <span className="text-xs font-normal ml-0.5">pts</span>
+            {group.tiebreakerWins > 0 && <span className="ml-1 text-xs font-normal">({group.tiebreakerWins})</span>}
           </div>
         </motion.div>
       ))}

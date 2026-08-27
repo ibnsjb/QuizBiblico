@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { SessionData, GroupData, HELP_LABELS } from '@/types/quiz';
+import { rankGroups } from '@/lib/ranking';
 import { Podium } from './podium';
 import { motion } from 'framer-motion';
 import { Check, X, Trophy, Swords } from 'lucide-react';
@@ -62,9 +63,9 @@ export function PublicView({ session }: PublicViewProps) {
         </p>
       </motion.div>
 
-      <Podium groups={groups} tiebreakerWinner={tiebreaker?.winner} />
+      <Podium groups={groups} tiebreakerWinner={tiebreaker?.winner} tiebreaker={tiebreaker} />
 
-      {isFinished && <FinalScoreboard groups={groups} tiebreakerWinner={tiebreaker?.winner} />}
+      {isFinished && <FinalScoreboard groups={groups} tiebreaker={tiebreaker} />}
 
       {/* Winner announcement */}
       {tiebreaker?.winner && tiebreaker?.winner !== 'tie' && (
@@ -187,18 +188,11 @@ export function PublicView({ session }: PublicViewProps) {
   );
 }
 
-function FinalScoreboard({ groups, tiebreakerWinner }: { groups: Record<string, GroupData>; tiebreakerWinner?: string | null }) {
-  const sortedGroups = Object.entries(groups).sort(([firstId, first], [secondId, second]) => {
-    if (tiebreakerWinner && tiebreakerWinner !== 'tie') {
-      if (firstId === tiebreakerWinner) return -1;
-      if (secondId === tiebreakerWinner) return 1;
-    }
-    return (second.total ?? 0) - (first.total ?? 0);
-  });
+function FinalScoreboard({ groups, tiebreaker }: { groups: Record<string, GroupData>; tiebreaker?: SessionData['tiebreaker'] }) {
+  const sortedGroups = rankGroups(groups, tiebreaker);
   const positions: number[] = [];
-  sortedGroups.forEach(([id, group], index) => {
-    const isDecidedWinner = tiebreakerWinner && tiebreakerWinner !== 'tie';
-    positions[index] = index === 0 || isDecidedWinner || (group.total ?? 0) !== (sortedGroups[index - 1]?.[1].total ?? 0)
+  sortedGroups.forEach((item, index) => {
+    positions[index] = index === 0 || item.group.total !== sortedGroups[index - 1]?.group.total || item.tiebreakerWins !== sortedGroups[index - 1]?.tiebreakerWins
       ? index + 1
       : positions[index - 1];
   });
@@ -206,7 +200,7 @@ function FinalScoreboard({ groups, tiebreakerWinner }: { groups: Record<string, 
     <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-8 rounded-2xl border-2 border-[var(--quiz-gold)] bg-[var(--quiz-dark)]/80 p-5 sm:p-8 gold-glow">
       <div className="text-center mb-6"><Trophy className="w-12 h-12 text-[var(--quiz-gold)] mx-auto mb-2" /><h3 className="font-display text-3xl sm:text-5xl font-bold text-[var(--quiz-gold)]">Placar Geral</h3><p className="text-[hsl(var(--muted-foreground))] mt-2">Resultado final da sessão</p></div>
       <div className="space-y-3 max-w-3xl mx-auto">
-        {sortedGroups.map(([id, group], index) => <div key={id} className={`flex items-center gap-3 sm:gap-5 rounded-xl border p-4 sm:p-5 ${positions[index] === 1 ? 'border-[var(--quiz-gold)] bg-[var(--quiz-gold)]/15' : 'border-[hsl(var(--border))] bg-[var(--quiz-card)]'}`}><span className="w-10 text-center font-display text-2xl sm:text-3xl font-bold text-[var(--quiz-gold)]">{positions[index]}º</span><span className="flex-1 min-w-0 text-lg sm:text-2xl font-bold text-white truncate">{group.name}</span><span className="font-mono text-2xl sm:text-4xl font-bold text-[var(--quiz-gold)]">{group.total ?? 0}<small className="ml-1 text-xs sm:text-sm font-normal">pts</small></span></div>)}
+        {sortedGroups.map(({ id, group, tiebreakerWins }, index) => <div key={id} className={`flex items-center gap-3 sm:gap-5 rounded-xl border p-4 sm:p-5 ${positions[index] === 1 ? 'border-[var(--quiz-gold)] bg-[var(--quiz-gold)]/15' : 'border-[hsl(var(--border))] bg-[var(--quiz-card)]'}`}><span className="w-10 text-center font-display text-2xl sm:text-3xl font-bold text-[var(--quiz-gold)]">{positions[index]}º</span><span className="flex-1 min-w-0 text-lg sm:text-2xl font-bold text-white truncate">{group.name}</span><span className="font-mono text-2xl sm:text-4xl font-bold text-[var(--quiz-gold)]">{group.total ?? 0}<small className="ml-1 text-xs sm:text-sm font-normal">pts</small>{tiebreakerWins > 0 && <small className="ml-2 text-sm font-normal">({tiebreakerWins})</small>}</span></div>)}
       </div>
     </motion.section>
   );

@@ -32,6 +32,8 @@ Validar manualmente no navegador os fluxos com Firebase real.
 - Vencedor unico encerra automaticamente a sessao; empate renovado permite nova rodada.
 - Encerrar empatado e sortear vencedor finalizam corretamente a sessao.
 - Placar final respeita o vencedor do desempate e usa posicoes competitivas para empates reais.
+- Desempate usa o total original como placar principal e exibe os acertos extras entre parenteses.
+- Em empate no total original, mais acertos nas rodadas extras define 1o, 2o e 3o lugar.
 - O modal de turno permanece fechado ate o quiz ser iniciado.
 - Cadastro de grupos permite `Criar +1` para continuar no modal ou `Criar e finalizar`.
 - Build de producao executado com sucesso apos a correcao.

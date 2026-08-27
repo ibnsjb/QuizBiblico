@@ -176,7 +176,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
 
   return (
     <div>
-      <Podium groups={groups} tiebreakerWinner={tiebreaker?.winner} />
+      <Podium groups={groups} tiebreakerWinner={tiebreaker?.winner} tiebreaker={tiebreaker} />
 
       <div className="mb-6 flex justify-center">
         <button
