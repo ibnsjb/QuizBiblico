@@ -6,15 +6,20 @@ import { Plus, X } from 'lucide-react';
 
 interface NewGroupModalProps {
   onClose: () => void;
-  onCreate: (name: string) => void;
+  onCreate: (name: string, continueCreating: boolean) => void | Promise<void>;
 }
 
 export function NewGroupModal({ onClose, onCreate }: NewGroupModalProps) {
   const [name, setName] = useState('');
+  const handleCreate = async (continueCreating: boolean) => {
+    const trimmedName = name.trim();
+    if (!trimmedName) return;
+    await onCreate(trimmedName, continueCreating);
+    if (continueCreating) setName('');
+  };
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    const trimmedName = name.trim();
-    if (trimmedName) onCreate(trimmedName);
+    void handleCreate(false);
   };
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
@@ -27,9 +32,10 @@ export function NewGroupModal({ onClose, onCreate }: NewGroupModalProps) {
           <label className="text-sm text-[hsl(var(--muted-foreground))] block">Nome do grupo
             <input type="text" value={name} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value)} placeholder="Ex: Grupo Esperança" autoFocus className="mt-1 w-full bg-[var(--quiz-dark)] border border-[hsl(var(--border))] rounded-lg px-4 py-3 text-white placeholder-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[var(--quiz-gold)]" />
           </label>
-          <div className="flex gap-3 justify-end">
+          <div className="flex flex-wrap gap-3 justify-end">
             <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-[hsl(var(--secondary))] text-white hover:bg-[hsl(var(--secondary))]/80 transition text-sm">Cancelar</button>
-            <button type="submit" disabled={!name.trim()} className="flex items-center gap-2 bg-[var(--quiz-gold)] text-[var(--quiz-dark)] font-bold px-5 py-2 rounded-lg hover:bg-yellow-400 transition disabled:opacity-50 text-sm"><Plus className="w-4 h-4" />Criar grupo</button>
+            <button type="button" onClick={() => void handleCreate(true)} disabled={!name.trim()} className="flex items-center gap-2 bg-[var(--quiz-green)] text-white font-bold px-5 py-2 rounded-lg hover:bg-green-600 transition disabled:opacity-50 text-sm"><Plus className="w-4 h-4" />Criar +1</button>
+            <button type="submit" disabled={!name.trim()} className="flex items-center gap-2 bg-[var(--quiz-gold)] text-[var(--quiz-dark)] font-bold px-5 py-2 rounded-lg hover:bg-yellow-400 transition disabled:opacity-50 text-sm"><Plus className="w-4 h-4" />Criar e finalizar</button>
           </div>
         </form>
       </motion.div>

@@ -51,7 +51,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
 
   const currentGroupId = groupOrder?.[currentGroupIndex] ?? '';
   const allAnswered = currentGroupIndex >= (groupOrder?.length ?? 0);
-  const allRoundsDone = currentRound > totalRounds && allAnswered;
+  const allRoundsDone = currentRound >= totalRounds && allAnswered;
   const currentPoints = (config?.scoringRanges ?? []).find((range) => currentRound >= range.startRound && currentRound <= range.endRound)?.points ?? config?.defaultPoints ?? 10;
 
   useEffect(() => {
@@ -90,9 +90,9 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
     setNewGroupName('');
   };
 
-  const handleCreateGroup = async (name: string) => {
+  const handleCreateGroup = async (name: string, continueCreating: boolean) => {
     await addGroup(sessionId, name);
-    setShowNewGroup(false);
+    if (!continueCreating) setShowNewGroup(false);
   };
 
   const handleStartQuiz = async () => {
@@ -306,7 +306,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
       )}
 
       <AnimatePresence>
-        {showTurnModal && currentGroupId && !allAnswered && !isFinished && !tiebreaker?.active && groups[currentGroupId] && (
+        {showTurnModal && quizStarted && currentGroupId && !allAnswered && !isFinished && !tiebreaker?.active && groups[currentGroupId] && (
           <CurrentTurnModal
             group={groups[currentGroupId]}
             groupId={currentGroupId}

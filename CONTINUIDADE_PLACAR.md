@@ -25,6 +25,13 @@ Implementacao concluida e publicada no repositorio.
 ## Proxima retomada
 Validar manualmente no navegador os fluxos com Firebase real.
 
+## Correcao de empate e cadastro de grupos
+- Desempate exibido automaticamente quando a ultima rodada termina empatada.
+- Rodadas extras podem ser iniciadas para os grupos empatados, com ajudas zeradas.
+- O modal de turno permanece fechado ate o quiz ser iniciado.
+- Cadastro de grupos permite `Criar +1` para continuar no modal ou `Criar e finalizar`.
+- Build de producao executado com sucesso apos a correcao.
+
 ## Ajuste de responsividade e turno público
 - [x] Reduzir o indicador `Apresentador` para apenas o ícone no topo mobile.
 - [x] Centralizar automaticamente o grupo da vez na visão pública.
