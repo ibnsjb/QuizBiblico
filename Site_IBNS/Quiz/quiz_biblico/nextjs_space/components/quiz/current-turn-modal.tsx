@@ -91,7 +91,7 @@ export function CurrentTurnModal({
               <p className="text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))] sm:text-sm">Ajudas</p>
               <span className="text-xs font-bold text-[var(--quiz-gold)]">Restam {group.helpsRemaining ?? 0}</span>
             </div>
-            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {Object.entries(config?.helpsEnabled ?? {}).map(([key, enabled]) => {
                 if (!enabled) return null;
                 const isUsed = helpsUsed.some((help: HelpUsage) => help.type === key);
@@ -102,7 +102,7 @@ export function CurrentTurnModal({
                     key={key}
                     disabled={!canUse && !canUndo}
                     onClick={() => canUndo ? onUndoHelp(groupId, key) : onUseHelp(groupId, key)}
-                    className={`flex min-h-10 items-center justify-center gap-1 rounded-lg px-1 text-[11px] font-bold transition sm:min-h-12 sm:gap-2 sm:px-2 sm:text-sm ${
+                    className={`flex min-h-14 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-bold transition sm:min-h-16 sm:gap-2 sm:rounded-lg sm:px-2 sm:text-sm ${
                       canUndo ? 'bg-[var(--quiz-orange)]/30 text-[var(--quiz-orange)] hover:bg-[var(--quiz-orange)]/50' :
                       canUse ? 'bg-[var(--quiz-green)] text-white hover:bg-green-600' :
                       'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]'
