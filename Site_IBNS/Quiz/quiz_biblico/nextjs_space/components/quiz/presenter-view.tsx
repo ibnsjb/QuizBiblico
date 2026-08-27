@@ -176,7 +176,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
 
   return (
     <div>
-      <Podium groups={groups} />
+      <Podium groups={groups} tiebreakerWinner={tiebreaker?.winner} />
 
       <div className="mb-6 flex justify-center">
         <button
@@ -563,7 +563,11 @@ function TiebreakerPanel({
 
   const handleTbAnswer = async (groupId: string, correct: boolean) => {
     play(correct ? 'correct' : 'wrong');
-    await tiebreakerAnswer(sessionId, groupId, tbRound, correct);
+    const winner = await tiebreakerAnswer(sessionId, groupId, tbRound, correct);
+    if (winner) {
+      play('winner');
+      await finishSession(sessionId);
+    }
   };
 
   return (
@@ -616,7 +620,11 @@ function TiebreakerPanel({
       <div className="flex justify-center gap-3">
         <button
           onClick={() => setTbRound((r: number) => r + 1)}
-          className="text-sm text-white bg-[var(--quiz-purple)] px-3 py-2 rounded-lg hover:bg-purple-600 transition"
+          disabled={!tbGroups.every((gid: string) => {
+            const value = tiebreaker?.rounds?.[`tb${tbRound}`]?.[gid];
+            return value !== undefined && value !== null;
+          })}
+          className="text-sm text-white bg-[var(--quiz-purple)] px-3 py-2 rounded-lg hover:bg-purple-600 transition disabled:cursor-not-allowed disabled:opacity-40"
         >
           Próxima Rodada Desempate
         </button>

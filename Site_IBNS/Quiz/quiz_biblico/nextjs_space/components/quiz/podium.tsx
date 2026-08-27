@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 
 interface PodiumProps {
   groups: Record<string, GroupData>;
+  tiebreakerWinner?: string | null;
 }
 
 const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
@@ -15,12 +16,24 @@ const MEDAL_BG = [
 ];
 const MEDAL_EMOJI = ['🥇', '🥈', '🥉'];
 
-export function Podium({ groups }: PodiumProps) {
+export function Podium({ groups, tiebreakerWinner }: PodiumProps) {
   const sorted = Object.entries(groups ?? {})
     .map(([id, g]: [string, GroupData]) => ({ id, ...g }))
-    .sort((a: any, b: any) => (b?.total ?? 0) - (a?.total ?? 0));
+    .sort((a: any, b: any) => {
+      if (tiebreakerWinner && tiebreakerWinner !== 'tie') {
+        if (a.id === tiebreakerWinner) return -1;
+        if (b.id === tiebreakerWinner) return 1;
+      }
+      return (b?.total ?? 0) - (a?.total ?? 0);
+    });
 
   const top3 = sorted?.slice(0, 3) ?? [];
+  const positions: number[] = [];
+  top3.forEach((group: any, index: number) => {
+    positions[index] = index === 0 || (tiebreakerWinner && tiebreakerWinner !== 'tie') || (group.total ?? 0) !== (top3[index - 1]?.total ?? 0)
+      ? index + 1
+      : positions[index - 1];
+  });
 
   if (top3?.length === 0) return null;
 
@@ -32,14 +45,14 @@ export function Podium({ groups }: PodiumProps) {
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
-          className={`flex items-center gap-3 px-5 py-3 rounded-xl border ${MEDAL_BG[index] ?? MEDAL_BG[2]} min-w-[180px]`}
+          className={`flex items-center gap-3 px-5 py-3 rounded-xl border ${MEDAL_BG[positions[index] - 1] ?? MEDAL_BG[2]} min-w-[180px]`}
         >
-          <span className="text-2xl">{MEDAL_EMOJI[index] ?? ''}</span>
+          <span className="text-2xl">{MEDAL_EMOJI[positions[index] - 1] ?? ''}</span>
           <div className="flex-1">
             <p className="text-white font-bold text-sm truncate">{group?.name ?? '---'}</p>
-            <p className="text-[hsl(var(--muted-foreground))] text-xs">Posição {index + 1}º</p>
+            <p className="text-[hsl(var(--muted-foreground))] text-xs">Posição {positions[index]}º</p>
           </div>
-          <div className="font-mono font-bold text-xl" style={{ color: MEDAL_COLORS[index] ?? '#CD7F32' }}>
+          <div className="font-mono font-bold text-xl" style={{ color: MEDAL_COLORS[positions[index] - 1] ?? '#CD7F32' }}>
             {group?.total ?? 0}
             <span className="text-xs font-normal ml-0.5">pts</span>
           </div>

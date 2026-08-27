@@ -365,11 +365,26 @@ export async function startTiebreaker(sessionId: string, groupIds: string[]) {
   await update(ref(database), updates);
 }
 
-export async function tiebreakerAnswer(sessionId: string, groupId: string, tbRound: number, correct: boolean) {
-  if (!database) return;
+export async function tiebreakerAnswer(sessionId: string, groupId: string, tbRound: number, correct: boolean): Promise<string | null> {
+  if (!database) return null;
   await update(ref(database, `sessions/${sessionId}/tiebreaker/rounds/tb${tbRound}`), {
     [groupId]: correct ? 1 : 0,
   });
+
+  const sessionSnap = await get(ref(database, `sessions/${sessionId}`));
+  const session: SessionData | null = sessionSnap?.val();
+  const groupIds = session?.tiebreaker?.groups ?? [];
+  const roundData = session?.tiebreaker?.rounds?.[`tb${tbRound}`] ?? {};
+  const allAnswered = groupIds.length > 0 && groupIds.every((id) => roundData[id] !== undefined && roundData[id] !== null);
+  if (!allAnswered) return null;
+
+  const highestScore = Math.max(...groupIds.map((id) => roundData[id] ?? 0));
+  const winners = groupIds.filter((id) => (roundData[id] ?? 0) === highestScore);
+  if (winners.length !== 1) return null;
+
+  const winner = winners[0];
+  await endTiebreaker(sessionId, winner);
+  return winner;
 }
 
 export async function endTiebreaker(sessionId: string, winner: string) {

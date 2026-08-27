@@ -28,6 +28,10 @@ Validar manualmente no navegador os fluxos com Firebase real.
 ## Correcao de empate e cadastro de grupos
 - Desempate exibido automaticamente quando a ultima rodada termina empatada.
 - Rodadas extras podem ser iniciadas para os grupos empatados, com ajudas zeradas.
+- Cada rodada extra aguarda a resposta de todos os empatados antes de avancar.
+- Vencedor unico encerra automaticamente a sessao; empate renovado permite nova rodada.
+- Encerrar empatado e sortear vencedor finalizam corretamente a sessao.
+- Placar final respeita o vencedor do desempate e usa posicoes competitivas para empates reais.
 - O modal de turno permanece fechado ate o quiz ser iniciado.
 - Cadastro de grupos permite `Criar +1` para continuar no modal ou `Criar e finalizar`.
 - Build de producao executado com sucesso apos a correcao.
