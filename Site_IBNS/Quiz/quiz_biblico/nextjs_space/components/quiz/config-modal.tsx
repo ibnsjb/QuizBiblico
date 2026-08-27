@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Save, Plus, Trash2 } from 'lucide-react';
-import { SessionConfig, ScoringRange, DEFAULT_CONFIG, HELP_LABELS } from '@/types/quiz';
+import { SessionConfig, ScoringRange, DEFAULT_CONFIG, HELP_LABELS, PublicTheme } from '@/types/quiz';
 import { updateSessionConfig } from '@/lib/firebase-operations';
 
 interface ConfigModalProps {
@@ -20,6 +20,7 @@ export function ConfigModal({ sessionId, config, onClose }: ConfigModalProps) {
     helpsEnabled: { ...(config?.helpsEnabled ?? DEFAULT_CONFIG.helpsEnabled) },
     helpsPerGroup: config?.helpsPerGroup ?? DEFAULT_CONFIG.helpsPerGroup,
     bibleConsultSeconds: config?.bibleConsultSeconds ?? DEFAULT_CONFIG.bibleConsultSeconds,
+    publicTheme: config?.publicTheme ?? DEFAULT_CONFIG.publicTheme,
     soundEnabled: config?.soundEnabled ?? DEFAULT_CONFIG.soundEnabled,
   });
   const [saving, setSaving] = useState(false);
@@ -177,6 +178,19 @@ export function ConfigModal({ sessionId, config, onClose }: ConfigModalProps) {
           <div className={!localConfig?.helpsEnabled?.bibleConsult ? 'opacity-50' : ''}>
             <label className="text-sm text-[hsl(var(--muted-foreground))] mb-1 block">Tempo de Consultar Bíblia (segundos)</label>
             <input type="number" min={1} max={600} disabled={!localConfig?.helpsEnabled?.bibleConsult} value={localConfig?.bibleConsultSeconds ?? 30} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalConfig({ ...localConfig, bibleConsultSeconds: Math.min(600, Math.max(1, parseInt(e.target.value, 10) || 30)) })} className="w-full bg-[var(--quiz-dark)] border border-[hsl(var(--border))] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[var(--quiz-gold)] transition font-mono text-lg" />
+          </div>
+
+          <div>
+            <label className="text-sm text-[hsl(var(--muted-foreground))] mb-1 block">Tema da visão pública</label>
+            <select
+              value={localConfig.publicTheme}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setLocalConfig({ ...localConfig, publicTheme: e.target.value as PublicTheme })}
+              className="w-full bg-[var(--quiz-dark)] border border-[hsl(var(--border))] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[var(--quiz-gold)]"
+            >
+              <option value="ocean">Oceano</option>
+              <option value="forest">Floresta</option>
+              <option value="sunrise">Amanhecer</option>
+            </select>
           </div>
 
           {/* Helps toggles */}

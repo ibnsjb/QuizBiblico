@@ -17,6 +17,7 @@ import {
   Award, Swords, Dice6, Undo2
 } from 'lucide-react';
 import { NewGroupModal } from './new-group-modal';
+import { CurrentTurnModal } from './current-turn-modal';
 
 interface PresenterViewProps {
   session: SessionData;
@@ -35,6 +36,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
   const [showNewGroup, setShowNewGroup] = useState(false);
   const [bibleTimer, setBibleTimer] = useState(0);
   const [bibleTimerGroupId, setBibleTimerGroupId] = useState<string | null>(null);
+  const [showTurnModal, setShowTurnModal] = useState(true);
   const currentGroupRef = useRef<HTMLDivElement | null>(null);
 
   const groups = session?.groups ?? {};
@@ -56,6 +58,12 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
     const timeout = window.setTimeout(() => currentGroupRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
     return () => window.clearTimeout(timeout);
   }, [currentGroupId, currentRound, allAnswered, isFinished]);
+
+  useEffect(() => {
+    if (currentGroupId && !allAnswered && !isFinished && !tiebreaker?.active) {
+      setShowTurnModal(true);
+    }
+  }, [currentGroupId, currentRound, allAnswered, isFinished, tiebreaker?.active]);
 
   useEffect(() => {
     if (bibleTimer <= 0) return;
@@ -161,6 +169,16 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
   return (
     <div>
       <Podium groups={groups} />
+
+      <div className="mb-6 flex justify-center">
+        <button
+          onClick={() => setShowTurnModal(true)}
+          disabled={!currentGroupId || allAnswered || isFinished || Boolean(tiebreaker?.active)}
+          className="rounded-lg border border-[var(--quiz-gold)] px-4 py-2 text-sm font-bold text-[var(--quiz-gold)] transition hover:bg-[var(--quiz-gold)]/10 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Abrir grupo da vez
+        </button>
+      </div>
 
       {/* Action buttons */}
       <div className="flex flex-wrap justify-center gap-3 mb-6">
@@ -270,6 +288,24 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
           </span>
         </motion.div>
       )}
+
+      <AnimatePresence>
+        {showTurnModal && currentGroupId && !allAnswered && !isFinished && !tiebreaker?.active && groups[currentGroupId] && (
+          <CurrentTurnModal
+            group={groups[currentGroupId]}
+            groupId={currentGroupId}
+            round={currentRound}
+            points={currentPoints}
+            config={config}
+            bibleTimer={bibleTimer}
+            bibleTimerGroupId={bibleTimerGroupId}
+            onAnswer={handleMark}
+            onUseHelp={handleUseHelp}
+            onUndoHelp={handleUndoHelp}
+            onClose={() => setShowTurnModal(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Group cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

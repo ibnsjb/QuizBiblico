@@ -22,7 +22,7 @@ export function TopBar({ mode, onSwitchToPresenter, onSwitchToPublic, sessionNam
       className="fixed top-0 left-0 right-0 z-50 bg-[var(--quiz-dark)]/90 backdrop-blur-md border-b border-[hsl(var(--border))]"
     >
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href="/placar" className="flex items-center gap-2.5" aria-label="Ir para o placar">
           <Image
             src="/logo-ibns-oficial.png"
             alt="Logo Igreja Batista Nova Sião"

@@ -16,8 +16,11 @@ export interface SessionConfig {
   };
   helpsPerGroup: number;
   bibleConsultSeconds: number;
+  publicTheme: PublicTheme;
   soundEnabled: boolean;
 }
+
+export type PublicTheme = 'ocean' | 'forest' | 'sunrise';
 
 export interface HelpUsage {
   type: 'eliminateAnswer' | 'churchHelp' | 'bibleConsult' | 'doubleScore';
@@ -33,6 +36,7 @@ export interface GroupData {
   helpsRemaining: number;
   doubleActive: boolean; // true if double is active for current round
   total: number;
+  bibleConsultExpiresAt?: number | null;
 }
 
 export interface TiebreakerData {
@@ -81,5 +85,6 @@ export const DEFAULT_CONFIG: SessionConfig = {
   },
   helpsPerGroup: 3,
   bibleConsultSeconds: 30,
+  publicTheme: 'ocean',
   soundEnabled: true,
 };

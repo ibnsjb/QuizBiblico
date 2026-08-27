@@ -1,6 +1,7 @@
 'use client';
 
-import { SessionData, GroupData } from '@/types/quiz';
+import { useEffect, useState } from 'react';
+import { SessionData, GroupData, HELP_LABELS } from '@/types/quiz';
 import { Podium } from './podium';
 import { motion } from 'framer-motion';
 import { Check, X, Trophy, Swords } from 'lucide-react';
@@ -20,9 +21,25 @@ export function PublicView({ session }: PublicViewProps) {
 
   const currentGroupId = groupOrder?.[currentGroupIndex] ?? '';
   const allAnswered = currentGroupIndex >= (groupOrder?.length ?? 0);
+  const [now, setNow] = useState(Date.now());
+  const publicTheme = session?.config?.publicTheme ?? 'ocean';
+  const themeClasses = {
+    ocean: 'bg-[#062b3a] text-cyan-50 border-cyan-400/40',
+    forest: 'bg-[#102d25] text-emerald-50 border-emerald-400/40',
+    sunrise: 'bg-[#3b1f2b] text-rose-50 border-orange-300/40',
+  }[publicTheme];
+
+  useEffect(() => {
+    const hasActiveTimer = Object.values(groups).some((group) => (group.bibleConsultExpiresAt ?? 0) > Date.now());
+    if (!hasActiveTimer) return;
+    const interval = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(interval);
+  }, [groups]);
+
+  const getRoundPoints = (round: number) => (session?.config?.scoringRanges ?? []).find((range) => round >= range.startRound && round <= range.endRound)?.points ?? session?.config?.defaultPoints ?? 10;
 
   return (
-    <div>
+    <div className={`min-h-screen rounded-2xl border p-3 sm:p-6 ${themeClasses}`}>
       {/* Session name */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -68,6 +85,17 @@ export function PublicView({ session }: PublicViewProps) {
         </motion.div>
       )}
 
+      {Object.entries(groups).map(([groupId, group]) => {
+        const seconds = Math.max(0, Math.ceil(((group.bibleConsultExpiresAt ?? 0) - now) / 1000));
+        if (!group.bibleConsultExpiresAt) return null;
+        return (
+          <div key={groupId} className={`mb-4 rounded-xl border-2 p-4 text-center ${seconds > 0 ? 'border-cyan-300 bg-cyan-950/70 text-cyan-100' : 'border-red-400 bg-red-950/70 text-red-100'}`}>
+            <p className="text-xs font-bold uppercase tracking-widest">Consulta à Bíblia: {group.name}</p>
+            <p className="mt-1 font-mono text-4xl font-bold sm:text-5xl">{seconds > 0 ? `${seconds}s` : 'TEMPO ESGOTADO'}</p>
+          </div>
+        );
+      })}
+
       {/* Round indicator */}
       {!isFinished && (
         <div className="text-center mb-4">
@@ -108,19 +136,28 @@ export function PublicView({ session }: PublicViewProps) {
                   {Array.from({ length: totalRounds }, (_, i: number) => i + 1)?.map((round: number) => {
                     const score = group?.scores?.[`round${round}`];
                     const answered = score !== undefined && score !== null;
+                    const roundHelps = (group?.helpsUsed ?? []).filter((help) => help.round === round);
+                    const doubled = roundHelps.some((help) => help.type === 'doubleScore');
 
                     return (
-                      <div key={round} className="flex items-center gap-2 py-1">
-                        <span className="text-xs text-[hsl(var(--muted-foreground))] font-mono w-20">Rodada {round}</span>
+                      <div key={round} className="flex flex-wrap items-center gap-2 border-b border-white/10 py-2">
+                        <span className="text-xs font-mono font-bold w-20">Rodada {round}</span>
+                        <span className="text-[10px] opacity-70">vale {getRoundPoints(round)} pts</span>
                         <div className="flex-1" />
                         {answered ? (
-                          <div className={`w-6 h-6 rounded flex items-center justify-center ${
-                            (score ?? 0) > 0 ? 'bg-[var(--quiz-green)]' : 'bg-[var(--quiz-red)]'
-                          }`}>
-                            {(score ?? 0) > 0 ? <Check className="w-3.5 h-3.5 text-white" /> : <X className="w-3.5 h-3.5 text-white" />}
-                          </div>
+                          <>
+                            <span className={`font-mono text-sm font-bold ${
+                              (score ?? 0) > 0 ? 'text-emerald-300' : 'text-rose-300'
+                            }`}>{(score ?? 0) > 0 ? `+${score}` : '0'}</span>
+                            <div className={`w-6 h-6 rounded flex items-center justify-center ${
+                              (score ?? 0) > 0 ? 'bg-[var(--quiz-green)]' : 'bg-[var(--quiz-red)]'
+                            }`}>
+                              {(score ?? 0) > 0 ? <Check className="w-3.5 h-3.5 text-white" /> : <X className="w-3.5 h-3.5 text-white" />}
+                            </div>
+                            {roundHelps.length > 0 && <div className="basis-full pl-20 text-[10px] font-bold text-orange-200">Ajudas: {roundHelps.map((help) => HELP_LABELS[help.type] ?? help.type).join(', ')}{doubled ? ' | Pontuação dobrada' : ''}</div>}
+                          </>
                         ) : (
-                          <div className="w-6 h-6 rounded bg-[hsl(var(--muted))] flex items-center justify-center">
+                          <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center">
                             <span className="text-[hsl(var(--muted-foreground))] text-xs">•</span>
                           </div>
                         )}

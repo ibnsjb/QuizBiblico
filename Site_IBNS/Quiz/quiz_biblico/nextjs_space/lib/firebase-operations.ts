@@ -121,6 +121,7 @@ export async function markAnswer(sessionId: string, groupId: string, round: numb
   const updates: Record<string, any> = {};
   updates[`sessions/${sessionId}/groups/${groupId}/scores/round${round}`] = score;
   updates[`sessions/${sessionId}/groups/${groupId}/doubleActive`] = false;
+  updates[`sessions/${sessionId}/groups/${groupId}/bibleConsultExpiresAt`] = null;
   
   // Recalculate total
   const scores = { ...(group?.scores ?? {}), [`round${round}`]: score };
@@ -236,6 +237,9 @@ export async function advanceRound(sessionId: string) {
 
 export async function useHelp(sessionId: string, groupId: string, helpType: string, round: number, extra?: Record<string, any>) {
   if (!database) return;
+  const sessionSnap = await get(ref(database, `sessions/${sessionId}`));
+  const session: SessionData | null = sessionSnap?.val();
+  if (!session) return;
   const groupRef = ref(database, `sessions/${sessionId}/groups/${groupId}`);
   const snapshot = await get(groupRef);
   const group: GroupData | null = snapshot?.val();
@@ -257,6 +261,9 @@ export async function useHelp(sessionId: string, groupId: string, helpType: stri
   
   if (helpType === 'doubleScore') {
     updates.doubleActive = true;
+  }
+  if (helpType === 'bibleConsult') {
+    updates.bibleConsultExpiresAt = Date.now() + (session.config?.bibleConsultSeconds ?? DEFAULT_CONFIG.bibleConsultSeconds) * 1000;
   }
   
   await update(groupRef, updates);
@@ -343,6 +350,7 @@ export async function startTiebreaker(sessionId: string, groupIds: string[]) {
     updates[`sessions/${sessionId}/groups/${groupId}/helpsUsed`] = [];
     updates[`sessions/${sessionId}/groups/${groupId}/helpsRemaining`] = 0;
     updates[`sessions/${sessionId}/groups/${groupId}/doubleActive`] = false;
+    updates[`sessions/${sessionId}/groups/${groupId}/bibleConsultExpiresAt`] = null;
   }
   await update(ref(database), updates);
 }
