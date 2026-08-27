@@ -16,8 +16,10 @@ export function ConfigModal({ sessionId, config, onClose }: ConfigModalProps) {
   const [localConfig, setLocalConfig] = useState<SessionConfig>({
     totalRounds: config?.totalRounds ?? DEFAULT_CONFIG.totalRounds,
     scoringRanges: config?.scoringRanges ?? [...DEFAULT_CONFIG.scoringRanges],
+    defaultPoints: config?.defaultPoints ?? DEFAULT_CONFIG.defaultPoints,
     helpsEnabled: { ...(config?.helpsEnabled ?? DEFAULT_CONFIG.helpsEnabled) },
     helpsPerGroup: config?.helpsPerGroup ?? DEFAULT_CONFIG.helpsPerGroup,
+    bibleConsultSeconds: config?.bibleConsultSeconds ?? DEFAULT_CONFIG.bibleConsultSeconds,
     soundEnabled: config?.soundEnabled ?? DEFAULT_CONFIG.soundEnabled,
   });
   const [saving, setSaving] = useState(false);
@@ -25,7 +27,10 @@ export function ConfigModal({ sessionId, config, onClose }: ConfigModalProps) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await updateSessionConfig(sessionId, localConfig);
+      await updateSessionConfig(sessionId, {
+        ...localConfig,
+        helpsPerGroup: Math.min(Object.values(localConfig.helpsEnabled).filter(Boolean).length, Math.max(0, localConfig.helpsPerGroup)),
+      });
       onClose();
     } catch (err: any) {
       console.error(err);
@@ -39,7 +44,13 @@ export function ConfigModal({ sessionId, config, onClose }: ConfigModalProps) {
     if (ranges[index]) {
       ranges[index] = { ...ranges[index], [field]: value };
     }
-    setLocalConfig({ ...localConfig, scoringRanges: ranges });
+    const normalizedRanges = ranges.map((range, rangeIndex) => ({
+      ...range,
+      startRound: rangeIndex === 0 ? 1 : (ranges[rangeIndex - 1]?.endRound ?? 0) + 1,
+      endRound: Math.max(range?.endRound ?? 1, rangeIndex === 0 ? 1 : (ranges[rangeIndex - 1]?.endRound ?? 0) + 1),
+      points: Math.max(0, range?.points ?? 0),
+    }));
+    setLocalConfig({ ...localConfig, scoringRanges: normalizedRanges });
   };
 
   const addRange = () => {
@@ -58,6 +69,8 @@ export function ConfigModal({ sessionId, config, onClose }: ConfigModalProps) {
     ranges?.splice(index, 1);
     setLocalConfig({ ...localConfig, scoringRanges: ranges });
   };
+
+  const enabledHelpsCount = Object.values(localConfig?.helpsEnabled ?? {}).filter(Boolean).length;
 
   return (
     <motion.div
@@ -84,7 +97,7 @@ export function ConfigModal({ sessionId, config, onClose }: ConfigModalProps) {
         <div className="space-y-6">
           {/* Total Rounds */}
           <div>
-            <label className="text-sm text-[hsl(var(--muted-foreground))] mb-1 block">Rodadas (R1, R2...)</label>
+            <label className="text-sm text-[hsl(var(--muted-foreground))] mb-1 block">Quantidade de rodadas</label>
             <input
               type="number"
               min={1}
@@ -95,13 +108,18 @@ export function ConfigModal({ sessionId, config, onClose }: ConfigModalProps) {
             />
           </div>
 
+          <div>
+            <label className="text-sm text-[hsl(var(--muted-foreground))] mb-1 block">Pontuação padrão por acerto</label>
+            <input type="number" min={0} value={localConfig?.defaultPoints ?? 10} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalConfig({ ...localConfig, defaultPoints: Math.max(0, parseInt(e.target.value, 10) || 0) })} className="w-full bg-[var(--quiz-dark)] border border-[hsl(var(--border))] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[var(--quiz-gold)] transition font-mono text-lg" />
+          </div>
+
           {/* Scoring Ranges */}
           <div>
             <label className="text-sm text-[hsl(var(--muted-foreground))] mb-2 block">Pontuação por Faixa</label>
             <div className="space-y-2">
               {(localConfig?.scoringRanges ?? [])?.map((range: ScoringRange, i: number) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="text-xs text-[hsl(var(--muted-foreground))] w-6">R</span>
+                  <span className="text-xs text-[hsl(var(--muted-foreground))] w-6">Rod.</span>
                   <input
                     type="number"
                     min={1}
@@ -148,11 +166,17 @@ export function ConfigModal({ sessionId, config, onClose }: ConfigModalProps) {
             <input
               type="number"
               min={0}
-              max={10}
+              max={enabledHelpsCount}
               value={localConfig?.helpsPerGroup ?? 3}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalConfig({ ...localConfig, helpsPerGroup: parseInt(e?.target?.value ?? '3') || 3 })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalConfig({ ...localConfig, helpsPerGroup: Math.min(enabledHelpsCount, Math.max(0, parseInt(e?.target?.value ?? '0', 10) || 0)) })}
               className="w-full bg-[var(--quiz-dark)] border border-[hsl(var(--border))] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[var(--quiz-gold)] transition font-mono text-lg"
             />
+            <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Máximo atual: {enabledHelpsCount}</p>
+          </div>
+
+          <div className={!localConfig?.helpsEnabled?.bibleConsult ? 'opacity-50' : ''}>
+            <label className="text-sm text-[hsl(var(--muted-foreground))] mb-1 block">Tempo de Consultar Bíblia (segundos)</label>
+            <input type="number" min={1} max={600} disabled={!localConfig?.helpsEnabled?.bibleConsult} value={localConfig?.bibleConsultSeconds ?? 30} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalConfig({ ...localConfig, bibleConsultSeconds: Math.min(600, Math.max(1, parseInt(e.target.value, 10) || 30)) })} className="w-full bg-[var(--quiz-dark)] border border-[hsl(var(--border))] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[var(--quiz-gold)] transition font-mono text-lg" />
           </div>
 
           {/* Helps toggles */}

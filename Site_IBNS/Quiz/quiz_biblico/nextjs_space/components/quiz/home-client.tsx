@@ -96,7 +96,7 @@ export default function HomeClient() {
         >
           <div className="flex justify-center mb-5">
             <Image
-              src="/logo-ibns-branco.png"
+              src="/logo-ibns-oficial.png"
               alt="Logo Igreja Batista Nova Sião"
               width={140}
               height={140}

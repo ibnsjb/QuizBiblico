@@ -73,13 +73,13 @@ export async function addGroup(sessionId: string, name: string) {
     order,
     scores: {},
     helpsUsed: [],
-    helpsRemaining: 3,
+    helpsRemaining: 0,
     doubleActive: false,
     total: 0,
   };
   // Get current session config for helpsPerGroup
   const sessionSnap = await get(ref(database, `sessions/${sessionId}/config/helpsPerGroup`));
-  group.helpsRemaining = sessionSnap?.val() ?? 3;
+  group.helpsRemaining = sessionSnap?.val() ?? DEFAULT_CONFIG.helpsPerGroup;
   await set(newRef, group);
 }
 
@@ -102,7 +102,7 @@ function getPointsForRound(round: number, config: SessionConfig): number {
       return range?.points ?? 10;
     }
   }
-  return 10;
+  return config?.defaultPoints ?? DEFAULT_CONFIG.defaultPoints;
 }
 
 export async function markAnswer(sessionId: string, groupId: string, round: number, correct: boolean) {
@@ -328,12 +328,23 @@ export async function shuffleGroups(sessionId: string) {
 
 export async function startTiebreaker(sessionId: string, groupIds: string[]) {
   if (!database) return;
-  await update(ref(database, `sessions/${sessionId}/tiebreaker`), {
+  const sessionSnap = await get(ref(database, `sessions/${sessionId}`));
+  const session: SessionData | null = sessionSnap?.val();
+  if (!session) return;
+  const updates: Record<string, any> = {
+    [`sessions/${sessionId}/tiebreaker`]: {
     active: true,
     groups: groupIds,
     rounds: {},
     winner: null,
-  });
+    },
+  };
+  for (const groupId of groupIds) {
+    updates[`sessions/${sessionId}/groups/${groupId}/helpsUsed`] = [];
+    updates[`sessions/${sessionId}/groups/${groupId}/helpsRemaining`] = 0;
+    updates[`sessions/${sessionId}/groups/${groupId}/doubleActive`] = false;
+  }
+  await update(ref(database), updates);
 }
 
 export async function tiebreakerAnswer(sessionId: string, groupId: string, tbRound: number, correct: boolean) {
@@ -362,18 +373,8 @@ export async function clearSession(sessionId: string) {
     currentGroupIndex: 0,
     tiebreaker: null,
     groupOrder: null,
+    groups: null,
   };
-  
-  // Reset group scores
-  const groups = session?.groups ?? {};
-  for (const gid of Object.keys(groups)) {
-    updates[`groups/${gid}/scores`] = {};
-    updates[`groups/${gid}/helpsUsed`] = [];
-    updates[`groups/${gid}/helpsRemaining`] = session?.config?.helpsPerGroup ?? 3;
-    updates[`groups/${gid}/doubleActive`] = false;
-    updates[`groups/${gid}/total`] = 0;
-    updates[`groups/${gid}/order`] = 0;
-  }
   
   await update(ref(database, `sessions/${sessionId}`), updates);
 }

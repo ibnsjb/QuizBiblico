@@ -7,6 +7,7 @@ export interface ScoringRange {
 export interface SessionConfig {
   totalRounds: number;
   scoringRanges: ScoringRange[];
+  defaultPoints: number;
   helpsEnabled: {
     eliminateAnswer: boolean;
     churchHelp: boolean;
@@ -14,6 +15,7 @@ export interface SessionConfig {
     doubleScore: boolean;
   };
   helpsPerGroup: number;
+  bibleConsultSeconds: number;
   soundEnabled: boolean;
 }
 
@@ -70,6 +72,7 @@ export const DEFAULT_CONFIG: SessionConfig = {
     { startRound: 4, endRound: 6, points: 20 },
     { startRound: 7, endRound: 9, points: 30 },
   ],
+  defaultPoints: 10,
   helpsEnabled: {
     eliminateAnswer: true,
     churchHelp: true,
@@ -77,5 +80,6 @@ export const DEFAULT_CONFIG: SessionConfig = {
     doubleScore: true,
   },
   helpsPerGroup: 3,
+  bibleConsultSeconds: 30,
   soundEnabled: true,
 };

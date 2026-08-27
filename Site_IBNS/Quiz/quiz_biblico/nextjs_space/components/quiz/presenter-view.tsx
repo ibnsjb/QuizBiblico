@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { SessionData, GroupData, HELP_LABELS, HelpUsage } from '@/types/quiz';
 import { Podium } from './podium';
 import {
@@ -16,6 +16,7 @@ import {
   HelpCircle, BookOpen, Users as UsersIcon, Zap, ChevronRight,
   Award, Swords, Dice6, Undo2
 } from 'lucide-react';
+import { NewGroupModal } from './new-group-modal';
 
 interface PresenterViewProps {
   session: SessionData;
@@ -31,6 +32,10 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [editingGroup, setEditingGroup] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [showNewGroup, setShowNewGroup] = useState(false);
+  const [bibleTimer, setBibleTimer] = useState(0);
+  const [bibleTimerGroupId, setBibleTimerGroupId] = useState<string | null>(null);
+  const currentGroupRef = useRef<HTMLDivElement | null>(null);
 
   const groups = session?.groups ?? {};
   const groupOrder = session?.groupOrder ?? Object.keys(groups);
@@ -44,6 +49,19 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
   const currentGroupId = groupOrder?.[currentGroupIndex] ?? '';
   const allAnswered = currentGroupIndex >= (groupOrder?.length ?? 0);
   const allRoundsDone = currentRound > totalRounds && allAnswered;
+  const currentPoints = (config?.scoringRanges ?? []).find((range) => currentRound >= range.startRound && currentRound <= range.endRound)?.points ?? config?.defaultPoints ?? 10;
+
+  useEffect(() => {
+    if (!currentGroupId || allAnswered || isFinished) return;
+    const timeout = window.setTimeout(() => currentGroupRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+    return () => window.clearTimeout(timeout);
+  }, [currentGroupId, currentRound, allAnswered, isFinished]);
+
+  useEffect(() => {
+    if (bibleTimer <= 0) return;
+    const interval = window.setInterval(() => setBibleTimer((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearInterval(interval);
+  }, [bibleTimer]);
 
   // Detect ties
   const tiedGroups = useMemo(() => {
@@ -61,6 +79,11 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
     if (!newGroupName?.trim()) return;
     await addGroup(sessionId, newGroupName?.trim());
     setNewGroupName('');
+  };
+
+  const handleCreateGroup = async (name: string) => {
+    await addGroup(sessionId, name);
+    setShowNewGroup(false);
   };
 
   const handleShuffle = async () => {
@@ -95,6 +118,10 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
     }
 
     await useHelp(sessionId, groupId, helpType, currentRound, extra);
+    if (helpType === 'bibleConsult') {
+      setBibleTimer(config?.bibleConsultSeconds ?? 30);
+      setBibleTimerGroupId(groupId);
+    }
   };
 
   const handleUndoHelp = async (groupId: string, helpType: string) => {
@@ -139,12 +166,11 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
       <div className="flex flex-wrap justify-center gap-3 mb-6">
         <button
           onClick={() => {
-            const name = `Grupo ${(Object.keys(groups)?.length ?? 0) + 1}`;
-            addGroup(sessionId, name);
+            setShowNewGroup(true);
           }}
           className="flex items-center gap-2 bg-[var(--quiz-green)] text-white font-bold px-4 py-2.5 rounded-lg hover:bg-green-600 transition-all text-sm"
         >
-          <Plus className="w-4 h-4" /> +GRUPO
+          <Plus className="w-4 h-4" /> NOVO GRUPO
         </button>
         <button
           onClick={handleShuffle}
@@ -195,7 +221,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
               onClick={handleStartTiebreaker}
               className="bg-[var(--quiz-orange)] text-white font-bold px-4 py-2 rounded-lg hover:bg-orange-600 transition text-sm"
             >
-              <Swords className="w-4 h-4 inline mr-1" /> Desempate
+              <Swords className="w-4 h-4 inline mr-1" /> Iniciar rodadas extras
             </button>
             <button
               onClick={handleEndTie}
@@ -234,7 +260,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
           className="text-center mb-4"
         >
           <span className="text-[hsl(var(--muted-foreground))] text-sm">
-            Rodada <span className="text-white font-bold">{currentRound}</span>/{totalRounds}
+            Rodada <span className="text-white font-bold">{currentRound}</span>/{totalRounds} — Valendo <span className="text-[var(--quiz-gold)] font-bold">{currentPoints} pts</span>
             {currentGroupId && !allAnswered && (
               <> — Vez de <span className="text-[var(--quiz-gold)] font-bold">{groups?.[currentGroupId]?.name ?? ''}</span></>
             )}
@@ -257,6 +283,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
           return (
             <motion.div
               key={gid}
+              ref={isCurrent ? currentGroupRef : undefined}
               layout
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -303,7 +330,10 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
 
               {/* Helps */}
               <div className="px-3 pt-3">
-                <p className="text-xs text-[hsl(var(--muted-foreground))] font-bold mb-1.5">AJUDAS</p>
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-xs text-[hsl(var(--muted-foreground))] font-bold">AJUDAS</p>
+                  {isCurrent && bibleTimerGroupId === gid && <span className="text-xs font-bold text-[var(--quiz-gold)]">Bíblia: {bibleTimer}s</span>}
+                </div>
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {Object.entries(config?.helpsEnabled ?? {})?.map(([key, enabled]: [string, any]) => {
                     if (!enabled) return null;
@@ -365,7 +395,7 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
                           isCurrentRound ? 'bg-[var(--quiz-gold)]/10' : ''
                         }`}
                       >
-                        <span className="text-sm text-[hsl(var(--muted-foreground))] font-mono w-8">R{round}</span>
+                        <span className="text-sm text-[hsl(var(--muted-foreground))] font-mono w-20">Rodada {round}</span>
                         <div className="flex-1" />
                         {answered ? (
                           <>
@@ -431,13 +461,17 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
         {showShuffle && <ShuffleAnimation groups={groups} order={shuffleOrder ?? undefined} />}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {showNewGroup && <NewGroupModal onClose={() => setShowNewGroup(false)} onCreate={handleCreateGroup} />}
+      </AnimatePresence>
+
       {/* Clear confirm */}
       <AnimatePresence>
         {showClearConfirm && (
           <ConfirmModal
             title="Limpar Sessão"
-            message="Isso vai zerar todas as pontuações e ajudas. Os grupos serão mantidos. Deseja continuar?"
-            confirmLabel="Limpar Tudo"
+            message="Isso vai apagar grupos, pontuações, ajudas, ordem e desempates desta sessão. Deseja continuar?"
+            confirmLabel="Apagar tudo"
             variant="danger"
             onConfirm={async () => { await clearSession(sessionId); setShowClearConfirm(false); }}
             onCancel={() => setShowClearConfirm(false)}

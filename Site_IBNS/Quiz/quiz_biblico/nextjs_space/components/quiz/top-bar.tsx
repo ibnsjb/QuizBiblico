@@ -24,11 +24,11 @@ export function TopBar({ mode, onSwitchToPresenter, onSwitchToPublic, sessionNam
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5">
           <Image
-            src="/logo-ibns-branco.png"
+            src="/logo-ibns-oficial.png"
             alt="Logo Igreja Batista Nova Sião"
-            width={40}
-            height={40}
-            className="h-9 w-auto object-contain"
+            width={64}
+            height={64}
+            className="h-11 w-11 object-contain"
             priority
           />
           <span className="font-display font-bold text-lg">
