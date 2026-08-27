@@ -73,7 +73,7 @@ export function CurrentTurnModal({
           </div>
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-2 sm:gap-4">
+        <div className="grid gap-3 sm:gap-4">
           <div className="rounded-xl border border-[hsl(var(--border))] bg-[var(--quiz-dark)]/60 p-3 sm:p-4">
             <p className="mb-2 text-center text-xs font-bold uppercase tracking-wider text-[hsl(var(--muted-foreground))] sm:mb-3 sm:text-sm">Resultado</p>
             <div className="grid grid-cols-2 gap-3">
@@ -102,7 +102,7 @@ export function CurrentTurnModal({
                     key={key}
                     disabled={!canUse && !canUndo}
                     onClick={() => canUndo ? onUndoHelp(groupId, key) : onUseHelp(groupId, key)}
-                    className={`flex min-h-14 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-bold transition sm:min-h-16 sm:gap-2 sm:rounded-lg sm:px-2 sm:text-sm ${
+                    className={`flex min-h-16 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-bold transition sm:min-h-20 sm:gap-2 sm:rounded-lg sm:px-2 sm:text-sm ${
                       canUndo ? 'bg-[var(--quiz-orange)]/30 text-[var(--quiz-orange)] hover:bg-[var(--quiz-orange)]/50' :
                       canUse ? 'bg-[var(--quiz-green)] text-white hover:bg-green-600' :
                       'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]'
