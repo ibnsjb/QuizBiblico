@@ -24,7 +24,7 @@ export function TopBar({ mode, onSwitchToPresenter, onSwitchToPublic, sessionNam
       <div className="mx-auto flex min-h-16 w-full max-w-5xl items-center justify-between gap-3 px-[3%]">
         <Link href="/placar" className="flex min-w-0 items-center gap-2" aria-label="Ir para o placar">
           <Image
-            src="/logo-ibns-oficial.png"
+            src="/logo-ibns-novo.svg"
             alt="Logo Igreja Batista Nova Sião"
             width={64}
             height={64}
