@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { SessionData, GroupData, HELP_LABELS, HelpUsage } from '@/types/quiz';
+import { SessionData, GroupData, HELP_LABELS, HelpUsage, DEFAULT_CONFIG } from '@/types/quiz';
 import { Podium } from './podium';
 import {
   addGroup, removeGroup, updateGroupName, markAnswer, advanceRound, startQuiz,
@@ -132,9 +132,18 @@ export function PresenterView({ session, sessionId, play }: PresenterViewProps) 
       extra = { eliminated };
     }
 
-    await useHelp(sessionId, groupId, helpType, currentRound, extra);
+    const bibleConsultSeconds = config?.bibleConsultSeconds ?? DEFAULT_CONFIG.bibleConsultSeconds;
+    const bibleConsultExpiresAt = await useHelp(
+      sessionId,
+      groupId,
+      helpType,
+      currentRound,
+      extra,
+      bibleConsultSeconds,
+    );
     if (helpType === 'bibleConsult') {
-      setBibleTimer(config?.bibleConsultSeconds ?? 30);
+      const countdownExpiresAt = bibleConsultExpiresAt ?? Date.now() + bibleConsultSeconds * 1000;
+      setBibleTimer(Math.max(0, Math.ceil((countdownExpiresAt - Date.now()) / 1000)));
       setBibleTimerGroupId(groupId);
     }
   };

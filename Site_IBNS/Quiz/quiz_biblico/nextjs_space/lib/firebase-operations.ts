@@ -245,15 +245,15 @@ export async function advanceRound(sessionId: string) {
 
 // --- Helps ---
 
-export async function useHelp(sessionId: string, groupId: string, helpType: string, round: number, extra?: Record<string, any>) {
-  if (!database) return;
+export async function useHelp(sessionId: string, groupId: string, helpType: string, round: number, extra?: Record<string, any>, durationSeconds?: number): Promise<number | null> {
+  if (!database) return null;
   const sessionSnap = await get(ref(database, `sessions/${sessionId}`));
   const session: SessionData | null = sessionSnap?.val();
-  if (!session) return;
+  if (!session) return null;
   const groupRef = ref(database, `sessions/${sessionId}/groups/${groupId}`);
   const snapshot = await get(groupRef);
   const group: GroupData | null = snapshot?.val();
-  if (!group) return;
+  if (!group) return null;
   
   const helpUsage: HelpUsage = {
     type: helpType as HelpUsage['type'],
@@ -272,11 +272,15 @@ export async function useHelp(sessionId: string, groupId: string, helpType: stri
   if (helpType === 'doubleScore') {
     updates.doubleActive = true;
   }
+  let bibleConsultExpiresAt: number | null = null;
   if (helpType === 'bibleConsult') {
-    updates.bibleConsultExpiresAt = Date.now() + (session.config?.bibleConsultSeconds ?? DEFAULT_CONFIG.bibleConsultSeconds) * 1000;
+    const configuredSeconds = durationSeconds ?? session.config?.bibleConsultSeconds ?? DEFAULT_CONFIG.bibleConsultSeconds;
+    bibleConsultExpiresAt = Date.now() + configuredSeconds * 1000;
+    updates.bibleConsultExpiresAt = bibleConsultExpiresAt;
   }
   
   await update(groupRef, updates);
+  return bibleConsultExpiresAt;
 }
 
 export async function undoHelp(sessionId: string, groupId: string, helpType: string) {
